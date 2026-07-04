@@ -92,33 +92,33 @@
               class="relative shrink-0"
               style="height: {bracketHeight}px"
             >
-            {#each Array(pairCount) as _, pairIndex (pairIndex)}
-              {@const top =
-                getMatchTop(roundIndex - 1, pairIndex * 2) +
-                BRACKET_SLOT_HEIGHT / 2}
-              {@const bottom =
-                getMatchTop(roundIndex - 1, pairIndex * 2 + 1) +
-                BRACKET_SLOT_HEIGHT / 2}
-              {@const mid = (top + bottom) / 2}
-              <div
-                class="border-border pointer-events-none absolute right-0 left-0"
-                style="top: {top}px; height: {bottom - top}px"
-              >
+              {#each Array(pairCount) as _, pairIndex (pairIndex)}
+                {@const top =
+                  getMatchTop(roundIndex - 1, pairIndex * 2) +
+                  BRACKET_SLOT_HEIGHT / 2}
+                {@const bottom =
+                  getMatchTop(roundIndex - 1, pairIndex * 2 + 1) +
+                  BRACKET_SLOT_HEIGHT / 2}
+                {@const mid = (top + bottom) / 2}
                 <div
-                  class="border-border absolute top-0 left-0 w-1/2 border-t-2"
-                ></div>
-                <div
-                  class="border-border absolute top-full left-0 w-1/2 border-t-2"
-                ></div>
-                <div
-                  class="border-border absolute top-0 left-1/2 h-full border-l-2"
-                ></div>
-                <div
-                  class="border-border absolute top-1/2 right-0 left-1/2 border-t-2"
-                  style="top: {mid - top}px"
-                ></div>
-              </div>
-            {/each}
+                  class="border-border pointer-events-none absolute right-0 left-0"
+                  style="top: {top}px; height: {bottom - top}px"
+                >
+                  <div
+                    class="border-border absolute top-0 left-0 w-1/2 border-t-2"
+                  ></div>
+                  <div
+                    class="border-border absolute top-full left-0 w-1/2 border-t-2"
+                  ></div>
+                  <div
+                    class="border-border absolute top-0 left-1/2 h-full border-l-2"
+                  ></div>
+                  <div
+                    class="border-border absolute top-1/2 right-0 left-1/2 border-t-2"
+                    style="top: {mid - top}px"
+                  ></div>
+                </div>
+              {/each}
             </div>
           </div>
         {/if}

@@ -136,6 +136,7 @@ const en: Record<keyof typeof id, string> = {
   "football.commentaryType.RC": "Red card",
   "football.commentaryType.SI": "Substitution",
   "football.commentaryType.post_match summary": "Match summary",
+  "football.eventTimelineTitle": "Event timeline",
   "football.playByPlayTitle": "Play-by-play",
   "football.playByPlayLive": "Live updates",
   "football.playByPlayEvents": "events",

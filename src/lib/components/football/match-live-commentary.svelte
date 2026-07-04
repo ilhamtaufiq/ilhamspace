@@ -1,6 +1,10 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
+  import {
+    COMMENTARY_POLL_MS,
+    livePollFetchInit,
+  } from "$lib/football/poll-intervals";
   import type {
     MatchCommentaryEntry,
     MatchCommentaryView,
@@ -28,10 +32,13 @@
   const { t } = getLocaleContext();
 
   let entries = $state<MatchCommentaryEntry[]>([]);
-  let lastUpdated = $state<string | undefined>(undefined);
-  let seenIds = $state(new Set<string>());
   let freshIds = $state(new Set<string>());
-  let seeded = $state(false);
+  let seenIdSet = new Set<string>();
+  let entriesKey = "";
+  let initialized = false;
+
+  const entryIdsKey = (items: MatchCommentaryEntry[]): string =>
+    items.map((entry) => entry.id).join("\0");
 
   const typeLabel = (type: string): string => {
     const key = COMMENTARY_TYPE_KEYS[type];
@@ -42,23 +49,33 @@
     next: MatchCommentaryEntry[],
     animateNew = true,
   ): void => {
-    if (!seeded) {
-      seeded = true;
-      seenIds = new Set(next.map((entry) => entry.id));
+    const nextKey = entryIdsKey(next);
+
+    if (!initialized) {
+      initialized = true;
+      seenIdSet = new Set(next.map((entry) => entry.id));
+      entriesKey = nextKey;
       entries = next;
+      return;
+    }
+
+    if (nextKey === entriesKey) {
       return;
     }
 
     const newFresh = new Set<string>();
     if (animateNew) {
       for (const entry of next) {
-        if (!seenIds.has(entry.id)) {
+        if (!seenIdSet.has(entry.id)) {
           newFresh.add(entry.id);
         }
       }
     }
-    seenIds = new Set(next.map((entry) => entry.id));
+
+    seenIdSet = new Set(next.map((entry) => entry.id));
+    entriesKey = nextKey;
     entries = next;
+
     if (newFresh.size > 0) {
       freshIds = newFresh;
       setTimeout(() => {
@@ -69,7 +86,6 @@
 
   $effect(() => {
     syncEntries(commentary.entries, false);
-    lastUpdated = commentary.lastUpdated;
   });
 
   onMount(() => {
@@ -81,6 +97,7 @@
       try {
         const response = await fetch(
           `/api/football/matches/${matchId}/comments`,
+          livePollFetchInit,
         );
         if (!response.ok) {
           return;
@@ -90,7 +107,6 @@
           return;
         }
         syncEntries(data.entries);
-        lastUpdated = data.lastUpdated;
       } catch {
         /* ignore transient poll errors */
       }
@@ -98,7 +114,7 @@
 
     const interval = setInterval(() => {
       void poll();
-    }, 30_000);
+    }, COMMENTARY_POLL_MS);
 
     return () => {
       clearInterval(interval);

@@ -1,11 +1,15 @@
 <script lang="ts">
+  import { onMount } from "svelte";
+
   import MatchEvents from "$lib/components/football/match-events.svelte";
   import MatchFormationPitch from "$lib/components/football/match-formation-pitch.svelte";
   import MatchLiveCommentary from "$lib/components/football/match-live-commentary.svelte";
+  import MatchEventTimeline from "$lib/components/football/match-event-timeline.svelte";
   import MatchPlayByPlayFeed from "$lib/components/football/match-playbyplay-feed.svelte";
   import MatchLiveChat from "$lib/components/football/match-live-chat.svelte";
 
   import MatchH2h from "$lib/components/football/match-h2h.svelte";
+  import MatchLiveClock from "$lib/components/football/match-live-clock.svelte";
   import MatchLineup from "$lib/components/football/match-lineup.svelte";
   import MatchMomentum from "$lib/components/football/match-momentum.svelte";
   import MatchPlayerRatings from "$lib/components/football/match-player-ratings.svelte";
@@ -14,8 +18,10 @@
   import MatchStatsPanel from "$lib/components/football/match-stats-panel.svelte";
   import PageTitle from "$lib/components/layout/page-title.svelte";
   import HeadMeta from "$lib/components/seo/head-meta.svelte";
+  import { startMatchLivePolling } from "$lib/football/match-live-poll";
   import { FOTMOB_TEAM_LOGO } from "$lib/fotmob/constants";
   import { getLocaleContext } from "$lib/i18n/context";
+  import { cn } from "$lib/utils";
   import {
     buildMatchInsightsSummary,
     buildMatchOgImagePath,
@@ -28,7 +34,31 @@
   let { data, form }: { data: PageData; form: import("./$types").ActionData } =
     $props();
   const { t, locale } = getLocaleContext();
-  const match = $derived(data.match);
+
+  let liveMatchOverride = $state<PageData["match"] | undefined>(undefined);
+  let liveMatchFactsOverride = $state<PageData["matchFacts"] | undefined>(
+    undefined,
+  );
+
+  $effect(() => {
+    data.match.matchId;
+    liveMatchOverride = undefined;
+    liveMatchFactsOverride = undefined;
+  });
+
+  onMount(() => {
+    if (!data.match.isLive) {
+      return;
+    }
+
+    return startMatchLivePolling(data.match.matchId, (snapshot) => {
+      liveMatchOverride = snapshot.match;
+      liveMatchFactsOverride = snapshot.matchFacts;
+    });
+  });
+
+  const match = $derived(liveMatchOverride ?? data.match);
+  const matchFacts = $derived(liveMatchFactsOverride ?? data.matchFacts);
 
   const shareTitle = $derived(
     buildMatchShareTitle({
@@ -120,15 +150,11 @@
     </div>
 
     <div class="text-center">
-      {#if match.matchMinute}
-        <p
-          class="font-pixel mb-1 text-sm tabular-nums uppercase {match.isLive
-            ? 'text-[var(--destructive)]'
-            : 'text-muted-foreground'}"
-        >
-          {match.matchMinute}
-        </p>
-      {/if}
+      <MatchLiveClock
+        matchMinute={match.matchMinute}
+        liveClock={match.liveClock}
+        isLive={match.isLive}
+      />
       <p class="font-pixel text-2xl tabular-nums">
         {match.home.score} - {match.away.score}
       </p>
@@ -159,22 +185,33 @@
   </div>
 </section>
 
+{#if match.isLive}
+  <MatchPlayByPlayFeed
+    matchId={match.matchId}
+    playByPlay={data.playByPlay}
+    isLive={match.isLive}
+    homeTeamId={match.home.id}
+    awayTeamId={match.away.id}
+  />
+{:else if match.isFinished}
+  <MatchEventTimeline
+    playByPlay={data.playByPlay}
+    events={match.events}
+    homeName={match.home.name}
+    awayName={match.away.name}
+    homeTeamId={match.home.id}
+    awayTeamId={match.away.id}
+  />
+{/if}
+
 <MatchFormationPitch
   home={match.homeLineup}
   away={match.awayLineup}
   {locale}
   matchId={match.matchId}
-  matchFacts={data.matchFacts}
+  matchFacts={matchFacts}
   playerStatsById={match.playerStatsById}
   isLive={match.isLive}
-/>
-
-<MatchPlayByPlayFeed
-  matchId={match.matchId}
-  playByPlay={data.playByPlay}
-  isLive={match.isLive}
-  homeTeamId={match.home.id}
-  awayTeamId={match.away.id}
 />
 
 <MatchLiveCommentary
@@ -222,17 +259,26 @@
   />
 </div>
 
-<div class="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-  <MatchEvents events={match.events} {locale} />
-  {#if match.h2h}
-    <MatchH2h
-      h2h={match.h2h}
-      homeName={match.home.name}
-      awayName={match.away.name}
-      {locale}
-    />
-  {/if}
-</div>
+{#if !match.isFinished || match.h2h}
+  <div
+    class={cn(
+      "mb-6 grid grid-cols-1 gap-4",
+      !match.isFinished && match.h2h && "lg:grid-cols-2",
+    )}
+  >
+    {#if !match.isFinished}
+      <MatchEvents events={match.events} {locale} />
+    {/if}
+    {#if match.h2h}
+      <MatchH2h
+        h2h={match.h2h}
+        homeName={match.home.name}
+        awayName={match.away.name}
+        {locale}
+      />
+    {/if}
+  </div>
+{/if}
 
 {#if match.homeLineup || match.awayLineup}
   <section class="mb-6">

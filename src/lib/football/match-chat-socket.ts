@@ -76,7 +76,23 @@ export const connectMatchChatSocket = (
       if (retryTimer) {
         clearTimeout(retryTimer);
       }
-      socket?.close();
+      const activeSocket = socket;
+      if (!activeSocket) {
+        return;
+      }
+
+      if (activeSocket.readyState === WebSocket.CONNECTING) {
+        activeSocket.addEventListener(
+          "open",
+          () => {
+            activeSocket.close();
+          },
+          { once: true },
+        );
+        return;
+      }
+
+      activeSocket.close();
     },
   };
 };

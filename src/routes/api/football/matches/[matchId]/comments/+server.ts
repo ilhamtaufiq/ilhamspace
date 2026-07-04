@@ -15,7 +15,7 @@ export const GET: RequestHandler = async ({ params, setHeaders }) => {
   }
 
   setHeaders({
-    "cache-control": "public, max-age=30, stale-while-revalidate=60",
+    "cache-control": "private, no-cache, no-store, must-revalidate",
   });
 
   const raw = await getMatchComments(parsed.data);

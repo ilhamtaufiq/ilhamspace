@@ -4,6 +4,8 @@ import { mapMatchStats } from "$lib/fotmob/match-stats";
 import { getRoundLabel } from "$lib/fotmob/world-cup";
 import type {
   MatchDetailView,
+  MatchLiveClock,
+  MatchSuperLive,
   MatchEventView,
   MatchH2HRecord,
   MatchLineupPlayer,
@@ -401,6 +403,7 @@ const buildInsights = (
 
 type LiveTimeStatus = {
   short?: string;
+  long?: string;
   addedTime?: number;
 };
 
@@ -434,6 +437,78 @@ const extractMatchMinute = (
   }
 
   return short;
+};
+
+const extractLiveClock = (
+  status: Record<string, unknown>,
+  isLive: boolean,
+): MatchLiveClock | undefined => {
+  if (!isLive) {
+    return undefined;
+  }
+
+  const liveTime = status.liveTime as LiveTimeStatus | undefined;
+  const short = liveTime?.short ? normalizeMinuteLabel(liveTime.short) : "";
+  if (!short || short === "HT") {
+    return undefined;
+  }
+
+  const long = liveTime?.long ? normalizeMinuteLabel(liveTime.long) : "";
+
+  const longInjury = long.match(/^(\d+)\+(\d+):(\d{1,2})$/);
+  if (longInjury) {
+    return {
+      minute: Number(longInjury[1]) + Number(longInjury[2]),
+      second: Number(longInjury[3]),
+      injuryBaseMinute: Number(longInjury[1]),
+      injuryAddedMinute: Number(longInjury[2]),
+    };
+  }
+
+  const longNormal = long.match(/^(\d+):(\d{1,2})$/);
+  if (longNormal) {
+    return {
+      minute: Number(longNormal[1]),
+      second: Number(longNormal[2]),
+    };
+  }
+
+  const injuryShort = short.match(/^(\d+)\+(\d+)/);
+  if (injuryShort) {
+    return {
+      minute: Number(injuryShort[1]) + Number(injuryShort[2]),
+      second: 0,
+      injuryBaseMinute: Number(injuryShort[1]),
+      injuryAddedMinute: Number(injuryShort[2]),
+    };
+  }
+
+  const minuteOnly = short.match(/^(\d+)/);
+  if (minuteOnly) {
+    return {
+      minute: Number(minuteOnly[1]),
+      second: 0,
+    };
+  }
+
+  return undefined;
+};
+
+const extractSuperLive = (
+  content: Record<string, unknown> | undefined,
+): MatchSuperLive | undefined => {
+  const raw = content?.superlive as
+    | { superLiveUrl?: string; showSuperLive?: boolean }
+    | undefined;
+  const url = raw?.superLiveUrl?.trim();
+  if (!url) {
+    return undefined;
+  }
+
+  return {
+    url,
+    enabled: raw?.showSuperLive === true,
+  };
 };
 
 export const mapMatchDetail = (
@@ -532,6 +607,8 @@ export const mapMatchDetail = (
       isFinished,
       statusShort,
     ),
+    liveClock: extractLiveClock(status ?? {}, isLive),
+    superLive: extractSuperLive(content),
     isLive,
     isFinished,
     home,

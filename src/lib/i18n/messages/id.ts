@@ -135,6 +135,7 @@ const id = {
   "football.commentaryType.RC": "Kartu merah",
   "football.commentaryType.SI": "Pergantian pemain",
   "football.commentaryType.post_match summary": "Ringkasan pertandingan",
+  "football.eventTimelineTitle": "Linimasa kejadian",
   "football.playByPlayTitle": "Play-by-play",
   "football.playByPlayLive": "Update live",
   "football.playByPlayEvents": "kejadian",

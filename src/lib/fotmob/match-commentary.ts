@@ -12,6 +12,7 @@ type LtcEvent = {
 type LtcPayload = {
   Events?: LtcEvent[];
   LastUpdated?: string;
+  AutoCommentaries?: boolean;
 };
 
 const formatMinute = (elapsed: number, plus: number): string => {
@@ -78,5 +79,6 @@ export const mapMatchCommentary = (
     entries,
     hasData: entries.length > 0,
     lastUpdated: payload?.LastUpdated,
+    autoCommentaries: payload?.AutoCommentaries === true,
   };
 };

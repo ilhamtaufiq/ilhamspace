@@ -228,6 +228,7 @@ export type MatchCommentaryView = {
   entries: MatchCommentaryEntry[];
   hasData: boolean;
   lastUpdated?: string;
+  autoCommentaries?: boolean;
 };
 
 export type MatchPlayByPlayKind =
@@ -262,6 +263,18 @@ export type MatchPlayByPlayView = {
   lastUpdated?: string;
 };
 
+export type MatchLiveClock = {
+  minute: number;
+  second: number;
+  injuryBaseMinute?: number;
+  injuryAddedMinute?: number;
+};
+
+export type MatchSuperLive = {
+  url: string;
+  enabled: boolean;
+};
+
 export type MatchDetailView = {
   matchId: number;
   round: string;
@@ -271,6 +284,8 @@ export type MatchDetailView = {
   statusShort: string;
   statusLong: string;
   matchMinute: string;
+  liveClock?: MatchLiveClock;
+  superLive?: MatchSuperLive;
   isLive: boolean;
   isFinished: boolean;
   home: MatchTeamView;

@@ -7,6 +7,10 @@
     MatchPlayByPlayView,
   } from "$lib/fotmob/types";
   import type { MessageKey } from "$lib/i18n";
+  import {
+    PLAY_BY_PLAY_POLL_MS,
+    livePollFetchInit,
+  } from "$lib/football/poll-intervals";
   import { getLocaleContext } from "$lib/i18n/context";
   import { cn } from "$lib/utils";
 
@@ -48,12 +52,13 @@
     other: "•",
   };
 
-  let seenIds = $state(new Set<string>());
+  let seenIdSet = new Set<string>();
+  let entriesKey = "";
+  let initialized = false;
   let queue = $state<MatchPlayByPlayEntry[]>([]);
   let activePopup = $state<MatchPlayByPlayEntry | null>(null);
   let popupPhase = $state<"enter" | "visible" | "exit" | "idle">("idle");
-  let seeded = $state(false);
-  let processing = $state(false);
+  let processing = false;
 
   const kindLabel = (kind: MatchPlayByPlayKind): string => {
     const key = KIND_LABEL_KEYS[kind];
@@ -111,14 +116,19 @@
     entry.kind !== "comment" &&
     entry.kind !== "summary";
 
+  const entryIdsKey = (items: MatchPlayByPlayEntry[]): string =>
+    items.map((entry) => entry.id).join("\0");
+
   const enqueueNew = (next: MatchPlayByPlayEntry[]): void => {
     const fresh = next.filter(
-      (entry) => isMatchEvent(entry) && !seenIds.has(entry.id),
+      (entry) => isMatchEvent(entry) && !seenIdSet.has(entry.id),
     );
     if (fresh.length === 0) {
       return;
     }
-    seenIds = new Set([...seenIds, ...fresh.map((entry) => entry.id)]);
+    for (const entry of fresh) {
+      seenIdSet.add(entry.id);
+    }
     queue = [...queue, ...fresh];
     void processQueue();
   };
@@ -148,9 +158,12 @@
   };
 
   const syncEntries = (next: MatchPlayByPlayEntry[], initial = false): void => {
-    if (!seeded) {
-      seeded = true;
-      seenIds = new Set(next.map((entry) => entry.id));
+    const nextKey = entryIdsKey(next);
+
+    if (!initialized) {
+      initialized = true;
+      seenIdSet = new Set(next.map((entry) => entry.id));
+      entriesKey = nextKey;
       const latestFact = next.find((entry) => isMatchEvent(entry));
       if (initial && latestFact) {
         queue = [latestFact];
@@ -158,6 +171,12 @@
       }
       return;
     }
+
+    if (nextKey === entriesKey) {
+      return;
+    }
+
+    entriesKey = nextKey;
     enqueueNew(next);
   };
 
@@ -174,6 +193,7 @@
       try {
         const response = await fetch(
           `/api/football/matches/${matchId}/facts`,
+          livePollFetchInit,
         );
         if (!response.ok) {
           return;
@@ -190,7 +210,7 @@
 
     const interval = setInterval(() => {
       void poll();
-    }, 30_000);
+    }, PLAY_BY_PLAY_POLL_MS);
 
     return () => {
       clearInterval(interval);

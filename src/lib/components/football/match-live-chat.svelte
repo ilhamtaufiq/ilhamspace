@@ -1,6 +1,6 @@
 <script lang="ts">
   import { enhance } from "$app/forms";
-  import { tick } from "svelte";
+  import { onMount, tick } from "svelte";
 
   import Button from "$lib/components/ui/button.svelte";
   import Input from "$lib/components/ui/input.svelte";
@@ -107,7 +107,11 @@
     seededMatchId = matchId;
   });
 
-  $effect(() => {
+  onMount(() => {
+    if (!isLive) {
+      return;
+    }
+
     const socket = connectMatchChatSocket(matchId, appendMessage);
     return () => {
       socket.close();
