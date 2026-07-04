@@ -3,5 +3,5 @@ import { redirect } from "@sveltejs/kit";
 import type { RequestHandler } from "./$types";
 
 export const GET: RequestHandler = async () => {
-  throw redirect(301, "/logo-ilhamspace.jpg");
+  throw redirect(301, "/logo-ilhamspace.jpg?v=20260704");
 };

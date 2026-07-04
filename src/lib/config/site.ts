@@ -4,8 +4,8 @@ export const siteConfig = {
   description:
     "ilhamspace — a personal site for notes, projects, and ideas.",
   license: "CC-BY-4.0",
-  logoPath: "/logo-ilhamspace.jpg",
-  defaultOgImagePath: "/logo-ilhamspace.jpg",
+  logoPath: "/logo-ilhamspace.jpg?v=20260704",
+  defaultOgImagePath: "/logo-ilhamspace.jpg?v=20260704",
 } as const;
 
 import { browser } from "$app/environment";
