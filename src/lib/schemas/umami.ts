@@ -32,10 +32,10 @@ export const umamiSettingsFormSchema = z
       });
     }
 
-    if (!data.scriptUrl) {
+    if (!data.scriptUrl && !data.apiUrl) {
       ctx.addIssue({
         code: "custom",
-        message: "Script URL is required when Umami is enabled.",
+        message: "Script URL or API URL is required when Umami is enabled.",
         path: ["scriptUrl"],
       });
     }

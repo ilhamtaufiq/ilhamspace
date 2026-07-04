@@ -12,6 +12,11 @@ type CacheEntry = {
 
 const viewCache = new Map<string, CacheEntry>();
 
+export const deriveUmamiScriptUrl = (apiUrl: string): string => {
+  const base = apiUrl.trim().replace(/\/$/, "");
+  return `${base}/script.js`;
+};
+
 export const normalizeUmamiPath = (path: string): string => {
   const trimmed = path.trim();
   if (!trimmed) {

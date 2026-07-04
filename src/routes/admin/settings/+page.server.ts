@@ -7,6 +7,7 @@ import {
 import { umamiSettingsFormSchema } from "$lib/schemas/umami";
 import {
   clearUmamiViewCache,
+  deriveUmamiScriptUrl,
   testUmamiConnection,
 } from "$lib/server/umami";
 
@@ -47,10 +48,14 @@ export const actions: Actions = {
     }
 
     const existing = await getUmamiSettings();
+    const apiUrl = emptyToNull(parsed.data.apiUrl);
+    const scriptUrl =
+      emptyToNull(parsed.data.scriptUrl) ??
+      (apiUrl ? deriveUmamiScriptUrl(apiUrl) : null);
     const apiToken =
       emptyToNull(parsed.data.apiToken) ?? existing?.apiToken ?? null;
 
-    if (parsed.data.enabled && parsed.data.apiUrl && !apiToken) {
+    if (parsed.data.enabled && apiUrl && !apiToken) {
       return fail(400, {
         saveError: "API token is required to display view counts.",
       });
@@ -58,9 +63,9 @@ export const actions: Actions = {
 
     const saved = await saveUmamiSettings({
       enabled: parsed.data.enabled,
-      scriptUrl: emptyToNull(parsed.data.scriptUrl),
+      scriptUrl,
       websiteId: emptyToNull(parsed.data.websiteId),
-      apiUrl: emptyToNull(parsed.data.apiUrl),
+      apiUrl,
       apiToken,
     });
 

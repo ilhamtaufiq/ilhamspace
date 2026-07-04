@@ -17,9 +17,10 @@
   <div>
     <h2 class="font-pixel text-[10px] uppercase">Umami analytics</h2>
     <p class="font-retro text-muted-foreground mt-2 text-sm">
-      Connect your Umami instance for page tracking and view counts on notes.
-      Find the website ID and script URL in Umami → Settings → Websites. Create
-      an API token in Umami → Settings → API keys.
+      Works with self-hosted Umami (v2). Add a website for
+      <code class="font-mono text-xs">is.cianjur.space</code>, then paste the
+      values below. Script URL defaults to
+      <code class="font-mono text-xs">API URL/script.js</code> if left empty.
     </p>
   </div>
 
@@ -42,7 +43,7 @@
         name="scriptUrl"
         type="url"
         value={data.settings.scriptUrl}
-        placeholder="https://analytics.example.com/script.js"
+        placeholder="https://umami.example.com/script.js (optional if API URL set)"
         class="font-retro pixel-border bg-background block w-full px-3 py-2 text-sm"
       />
     </div>
@@ -66,11 +67,12 @@
         name="apiUrl"
         type="url"
         value={data.settings.apiUrl}
-        placeholder="https://analytics.example.com"
+        placeholder="https://umami.example.com"
         class="font-retro pixel-border bg-background block w-full px-3 py-2 text-sm"
       />
       <p class="font-retro text-muted-foreground text-xs">
-        Base URL of your Umami instance (no trailing slash).
+        Public base URL of your self-hosted Umami (no trailing slash). The
+        ilhamspace server calls this for view counts.
       </p>
     </div>
 
