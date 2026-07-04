@@ -1,4 +1,5 @@
-# Sama seperti spm-am: ./data di server Coolify, tanpa volume manual.
+# Sama konsep spm-am, tapi volume "data" benar-benar dipakai (di spm-am baris ini ada tapi tidak ter-mount).
+# Hapus Persistent Storage di Coolify UI — kalau masih ada, volume hash menimpa ini.
 services:
   app:
     build:
@@ -9,7 +10,7 @@ services:
     expose:
       - 3000
     volumes:
-      - ./data:/app/data
+      - data:/app/data
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -31,3 +32,6 @@ services:
 networks:
   coolify:
     external: true
+
+volumes:
+  data:
