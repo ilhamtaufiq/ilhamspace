@@ -4,6 +4,14 @@ set -e
 db_path="${DATABASE_PATH:-/data/ilhamspace.db}"
 mkdir -p "$(dirname "$db_path")"
 
+if [ -f "$db_path" ]; then
+  db_bytes="$(wc -c < "$db_path" | tr -d ' ')"
+  echo "[entrypoint] Database: $db_path (${db_bytes} bytes)"
+else
+  echo "[entrypoint] WARNING: No database at $db_path — creating a new empty file."
+  echo "[entrypoint] Mount a persistent volume to /data in Coolify or data resets every deploy."
+fi
+
 echo "[entrypoint] Running database migrations..."
 pnpm exec drizzle-kit migrate
 
