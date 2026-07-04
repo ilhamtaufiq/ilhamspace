@@ -9,7 +9,7 @@ const id = {
   "home.welcome": "Hai! Selamat datang di {name}.",
   "home.greeting": "Hai! Selamat datang di",
   "home.intro":
-    "{name} adalah ruang pribadiku di web — catatan, proyek, dan ide dalam satu tempat.",
+    "{name} adalah ruang pribadi di web — catatan, proyek, dan ide dalam satu tempat.",
   "home.tagline": "Catatan, proyek, dan ide.",
   "home.readNotes": "Baca catatan",
   "home.viewProjects": "Lihat proyek",
