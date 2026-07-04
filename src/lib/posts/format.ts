@@ -1,3 +1,5 @@
+import type { Locale } from "$lib/i18n/constants";
+import { getDateLocale } from "$lib/i18n";
 import type { Post } from "$lib/db/schema";
 
 export type NoteListItem = {
@@ -10,8 +12,8 @@ export type NoteListItem = {
   dateDisplay: string;
 };
 
-export const formatPostDateTitle = (date: Date): string =>
-  date.toLocaleString("en-US", {
+export const formatPostDateTitle = (date: Date, locale: Locale): string =>
+  date.toLocaleString(getDateLocale(locale), {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -20,16 +22,17 @@ export const formatPostDateTitle = (date: Date): string =>
     timeZoneName: "short",
   });
 
-export const formatPostListItem = (post: Post): NoteListItem => {
+export const formatPostListItem = (post: Post, locale: Locale): NoteListItem => {
   const date = post.publishedAt ?? post.createdAt;
+  const dateLocale = getDateLocale(locale);
   return {
     id: post.id,
     slug: post.slug,
     title: post.title,
     year: date.getUTCFullYear(),
     dateISO: date.toISOString(),
-    dateTitle: formatPostDateTitle(date),
-    dateDisplay: date.toLocaleDateString("en-US", {
+    dateTitle: formatPostDateTitle(date, locale),
+    dateDisplay: date.toLocaleDateString(dateLocale, {
       month: "short",
       day: "numeric",
     }),
@@ -38,13 +41,14 @@ export const formatPostListItem = (post: Post): NoteListItem => {
 
 export const formatPostPreview = (
   post: Post,
+  locale: Locale,
 ): Pick<NoteListItem, "slug" | "title" | "dateISO" | "dateDisplay"> => {
   const date = post.publishedAt ?? post.createdAt;
   return {
     slug: post.slug,
     title: post.title,
     dateISO: date.toISOString(),
-    dateDisplay: date.toLocaleDateString("en-US", {
+    dateDisplay: date.toLocaleDateString(getDateLocale(locale), {
       month: "short",
       day: "numeric",
       year: "numeric",

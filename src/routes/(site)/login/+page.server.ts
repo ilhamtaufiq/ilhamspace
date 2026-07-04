@@ -7,6 +7,7 @@ import { checkRateLimit } from "$lib/auth/rate-limit";
 import { createSession } from "$lib/auth/session";
 import { db } from "$lib/db/index";
 import { users } from "$lib/db/schema";
+import { translate } from "$lib/i18n";
 import { loginSchema } from "$lib/schemas/auth";
 
 import type { Actions, PageServerLoad } from "./$types";
@@ -22,7 +23,7 @@ export const actions: Actions = {
     const clientIp = event.getClientAddress();
     if (!checkRateLimit(`login:${clientIp}`)) {
       return fail(429, {
-        error: "Too many attempts. Try again in 15 minutes.",
+        error: translate(event.locals.locale, "login.errorRateLimit"),
         email: "",
       });
     }
@@ -36,7 +37,7 @@ export const actions: Actions = {
     const parsed = loginSchema.safeParse(raw);
     if (!parsed.success) {
       return fail(400, {
-        error: "Invalid email or password.",
+        error: translate(event.locals.locale, "login.errorInvalid"),
         email: raw.email,
       });
     }
@@ -51,7 +52,7 @@ export const actions: Actions = {
 
     if (!user?.isAdmin || !verifyPassword(parsed.data.password, user.passwordHash)) {
       return fail(401, {
-        error: "Invalid email or password.",
+        error: translate(event.locals.locale, "login.errorInvalid"),
         email: parsed.data.email,
       });
     }

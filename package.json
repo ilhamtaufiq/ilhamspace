@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite dev --host 0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "pnpm build && node --import tsx server.ts",
+    "start": "node --import tsx server.ts",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check-types": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "lint": "eslint .",
@@ -24,6 +25,7 @@
     "@sveltejs/vite-plugin-svelte": "^5.0.3",
     "@tailwindcss/vite": "^4.3.2",
     "@types/node": "^26.0.1",
+    "@types/ws": "^8.18.1",
     "drizzle-kit": "^0.31.10",
     "eslint": "^9.28.0",
     "eslint-plugin-svelte": "^3.9.0",
@@ -66,8 +68,10 @@
     "clsx": "^2.1.1",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.45.2",
+    "fast-xml-parser": "^5.9.3",
     "lowlight": "^3.3.0",
     "tailwind-merge": "^3.6.0",
+    "ws": "^8.21.0",
     "zod": "^4.4.3"
   },
   "engines": {

@@ -9,9 +9,7 @@
   let { href, children }: Props = $props();
 </script>
 
-<h1
-  class="not-prose font-pixel mt-0 mb-6 text-left text-sm uppercase tracking-wide"
->
+<h1 class="type-page-title not-prose">
   <a
     {href}
     class="text-foreground before:text-[var(--ring)] no-underline before:content-['>_']"

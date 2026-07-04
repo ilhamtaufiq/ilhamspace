@@ -36,6 +36,16 @@
 
 :root {
   color-scheme: light;
+  --type-body: 1.125rem;
+  --type-body-lg: 1.25rem;
+  --type-lead: 1.25rem;
+  --type-meta: 1rem;
+  --type-post-title: 1.75rem;
+  --type-prose-h2: 1.375rem;
+  --type-prose-h3: 1.1875rem;
+  --leading-body: 1.5;
+  --leading-prose: 1.65;
+  --leading-heading: 1.3;
   --space-page-y: 16px;
   --space-section: 32px;
   --space-card: 16px;
@@ -102,7 +112,9 @@
   }
 
   body {
-    @apply bg-background text-foreground font-retro text-lg antialiased;
+    @apply bg-background text-foreground font-retro antialiased;
+    font-size: var(--type-body);
+    line-height: var(--leading-body);
     background-image: radial-gradient(
       circle,
       rgb(45 27 78 / 12%) 1px,
@@ -118,6 +130,11 @@
       rgb(57 255 20 / 10%) 1px,
       transparent 1px
     );
+  }
+
+  body.note-detail-page,
+  body.note-detail-page:where(.dark *) {
+    background-image: none;
   }
 
   ::selection {
@@ -171,31 +188,128 @@
 
   .font-mono {
     font-family: var(--font-mono);
+    font-feature-settings: "liga" 0, "calt" 0;
   }
 
-  .prose-retro {
-    @apply font-retro text-lg leading-relaxed;
+  .type-page-title {
+    @apply font-pixel mt-0 mb-6 text-left text-sm uppercase tracking-wide;
+  }
+
+  .type-section {
+    @apply font-pixel text-xs uppercase text-primary tracking-wide;
+  }
+
+  .type-post-title {
+    font-family: var(--font-retro);
+    font-size: var(--type-post-title);
+    font-weight: 500;
+    line-height: var(--leading-heading);
+    letter-spacing: 0;
+  }
+
+  .type-lead {
+    font-family: var(--font-retro);
+    font-size: var(--type-lead);
+    line-height: var(--leading-prose);
+    @apply text-muted-foreground;
+  }
+
+  .type-meta {
+    font-family: var(--font-retro);
+    font-size: var(--type-meta);
+    line-height: var(--leading-body);
+    @apply text-muted-foreground;
+  }
+
+  .type-body {
+    font-family: var(--font-retro);
+    font-size: var(--type-body);
+    line-height: var(--leading-body);
+  }
+
+  .type-body-lg {
+    font-family: var(--font-retro);
+    font-size: var(--type-body-lg);
+    line-height: var(--leading-prose);
+  }
+
+  .type-caption {
+    @apply font-pixel text-[8px] uppercase leading-loose text-muted-foreground;
+  }
+
+  .type-label {
+    @apply font-pixel text-[10px] uppercase tracking-wide;
+  }
+
+  .note-article.prose-retro {
+    & p {
+      text-align: justify;
+      hyphens: auto;
+    }
 
     & h1,
     & h2,
-    & h3 {
-      @apply font-pixel text-primary mt-6 mb-3 uppercase leading-snug;
+    & h3,
+    & pre,
+    & blockquote,
+    & ul,
+    & ol,
+    & table {
+      text-align: left;
+    }
+  }
+
+  .prose-retro {
+    font-family: var(--font-retro);
+    font-size: var(--type-body-lg);
+    line-height: var(--leading-prose);
+
+    & h1,
+    & h2,
+    & h3,
+    & h4 {
+      @apply text-primary font-medium;
+      line-height: var(--leading-heading);
+      scroll-margin-top: 5rem;
     }
 
     & h1 {
-      @apply text-base;
+      font-size: var(--type-post-title);
+      @apply mt-8 mb-4;
     }
 
     & h2 {
-      @apply text-sm;
+      font-size: var(--type-prose-h2);
+      @apply mt-8 mb-3;
     }
 
     & h3 {
-      @apply text-xs;
+      font-size: var(--type-prose-h3);
+      @apply mt-6 mb-2;
+    }
+
+    & h4 {
+      @apply mt-5 mb-2 text-base;
     }
 
     & p {
-      @apply mb-4 text-foreground/90;
+      @apply mb-5 text-foreground/90;
+    }
+
+    & p + h2,
+    & p + h3,
+    & p + h4 {
+      @apply mt-8;
+    }
+
+    & strong,
+    & b {
+      @apply font-medium text-foreground;
+    }
+
+    & em,
+    & i {
+      @apply text-foreground/85;
     }
 
     & a {
@@ -215,29 +329,50 @@
     }
 
     & hr {
-      @apply my-6 border-0 border-t-4 border-border;
+      @apply my-8 border-0 border-t-4 border-border;
     }
 
     & img {
-      @apply my-4 max-w-full;
+      @apply my-5 max-w-full;
       border: 2px solid var(--border);
       box-shadow: 2px 2px 0 0 var(--border);
+    }
+
+    & img.pixel-art {
       image-rendering: pixelated;
     }
 
     & pre {
-      @apply font-mono bg-code text-code-foreground my-4 overflow-x-auto p-3 text-sm;
+      @apply font-mono bg-code text-code-foreground my-5 overflow-x-auto p-3 text-sm;
+      line-height: 1.5;
       border: 2px solid var(--border);
       box-shadow: 2px 2px 0 0 var(--border);
     }
 
     & ul,
     & ol {
-      @apply mb-4 space-y-1 pl-6;
+      @apply mb-5 space-y-1.5 pl-6;
     }
 
     & li {
       @apply text-foreground/90;
+    }
+
+    & li::marker {
+      @apply text-[var(--ring)];
+    }
+
+    & table {
+      @apply my-5 w-full border-collapse text-base;
+    }
+
+    & th,
+    & td {
+      @apply border-2 border-border px-2 py-1 text-left;
+    }
+
+    & th {
+      @apply bg-muted font-medium;
     }
   }
 
@@ -252,19 +387,6 @@
 
   .tiptap {
     @apply min-h-[36vh] outline-none;
-  }
-
-  .tiptap pre {
-    @apply font-mono bg-code text-code-foreground overflow-x-auto p-3 text-sm;
-  }
-
-  .tiptap table {
-    @apply w-full border-collapse;
-  }
-
-  .tiptap td,
-  .tiptap th {
-    @apply border-2 border-border px-2 py-1;
   }
 
   .dark .dot-grid {

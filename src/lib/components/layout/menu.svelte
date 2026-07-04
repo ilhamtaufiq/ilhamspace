@@ -2,13 +2,22 @@
   import { page } from "$app/stores";
 
   import Button from "$lib/components/ui/button.svelte";
+  import { getLocaleContext } from "$lib/i18n/context";
   import { cn } from "$lib/utils";
 
-  const menuItems = [
-    { text: "Home", href: "/" },
-    { text: "Notes", href: "/notes" },
-    { text: "Projects", href: "/projects" },
-  ] as const;
+  type Props = {
+    isAdmin?: boolean;
+  };
+
+  let { isAdmin = false }: Props = $props();
+  const { t } = getLocaleContext();
+
+  const menuItems = $derived([
+    { text: t("nav.home"), href: "/" },
+    { text: t("nav.notes"), href: "/notes" },
+    { text: t("nav.projects"), href: "/projects" },
+    ...(isAdmin ? [{ text: t("nav.dashboard"), href: "/admin" }] : []),
+  ]);
 
   const isActive = (href: string, pathname: string): boolean => {
     if (href === "/") {

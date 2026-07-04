@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
 
 export const users = sqliteTable("users", {
   id: text("id").primaryKey(),
@@ -52,6 +52,41 @@ export const pages = sqliteTable("pages", {
   views: integer("views").notNull().default(0),
 });
 
+export const comments = sqliteTable("comments", {
+  id: text("id").primaryKey(),
+  postId: text("post_id")
+    .notNull()
+    .references(() => posts.id, { onDelete: "cascade" }),
+  parentId: text("parent_id"),
+  authorName: text("author_name").notNull(),
+  authorEmail: text("author_email").notNull(),
+  body: text("body").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+});
+
+export const commentVotes = sqliteTable(
+  "comment_votes",
+  {
+    id: text("id").primaryKey(),
+    commentId: text("comment_id")
+      .notNull()
+      .references(() => comments.id, { onDelete: "cascade" }),
+    voterKey: text("voter_key").notNull(),
+    vote: integer("vote").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp_ms" })
+      .notNull()
+      .default(sql`(unixepoch() * 1000)`),
+  },
+  (table) => [
+    uniqueIndex("comment_votes_comment_voter").on(
+      table.commentId,
+      table.voterKey,
+    ),
+  ],
+);
+
 export const projects = sqliteTable("projects", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
@@ -76,5 +111,7 @@ export const projects = sqliteTable("projects", {
 export type User = typeof users.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
 export type Post = typeof posts.$inferSelect;
+export type Comment = typeof comments.$inferSelect;
+export type CommentVote = typeof commentVotes.$inferSelect;
 export type Page = typeof pages.$inferSelect;
 export type Project = typeof projects.$inferSelect;

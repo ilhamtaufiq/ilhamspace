@@ -39,7 +39,7 @@ export const GET: RequestHandler = async () => {
     <title>${escapeXml(siteConfig.name)}</title>
     <link>${siteUrl}</link>
     <description>${escapeXml(siteConfig.description)}</description>
-    <language>en</language>
+    <language>id</language>
     ${items}
   </channel>
 </rss>`;

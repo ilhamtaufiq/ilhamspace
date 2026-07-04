@@ -1,11 +1,11 @@
 import { slugify } from "$lib/editor/slug";
 import { isSlugTaken } from "$lib/server/posts";
 
-export const resolveUniqueSlug = async (
-  title: string,
+export const ensureUniqueSlug = async (
+  preferred: string,
   excludeId?: string,
 ): Promise<string> => {
-  const base = slugify(title) || "post";
+  const base = slugify(preferred) || "post";
   let slug = base;
   let counter = 2;
 
@@ -16,3 +16,8 @@ export const resolveUniqueSlug = async (
 
   return slug;
 };
+
+export const resolveUniqueSlug = async (
+  title: string,
+  excludeId?: string,
+): Promise<string> => ensureUniqueSlug(title, excludeId);

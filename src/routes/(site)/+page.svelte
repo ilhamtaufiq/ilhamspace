@@ -1,59 +1,71 @@
 <script lang="ts">
   import { IconExternalLink } from "@tabler/icons-svelte";
 
+  import HeadMeta from "$lib/components/seo/head-meta.svelte";
   import Button from "$lib/components/ui/button.svelte";
   import { siteConfig } from "$lib/config/site";
+  import { buildPageTitle, buildWebsiteJsonLd } from "$lib/seo/meta";
+  import { getDateLocale } from "$lib/i18n";
+  import { getLocaleContext } from "$lib/i18n/context";
 
   import type { PageData } from "./$types";
 
   let { data }: { data: PageData } = $props();
+  const { t } = getLocaleContext();
 
   const lastUpdatedDisplay = $derived(
     data.stats.lastUpdated
-      ? new Date(data.stats.lastUpdated).toLocaleDateString("en-US", {
-          month: "short",
-          day: "numeric",
-          year: "numeric",
-        })
+      ? new Date(data.stats.lastUpdated).toLocaleDateString(
+          getDateLocale(data.locale),
+          {
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+          },
+        )
       : null,
   );
 </script>
 
+<HeadMeta
+  title={buildPageTitle(t("seo.homeTitle"))}
+  description={t("seo.siteDescription")}
+  path="/"
+  jsonLd={buildWebsiteJsonLd()}
+/>
+
 <section class="space-y-6">
   <div class="space-y-4">
-    <h1 class="font-pixel text-sm uppercase leading-snug sm:text-base">
-      Hi! Welcome to {siteConfig.name}.
+    <h1 class="type-page-title text-base sm:text-base">
+      {t("home.welcome", { name: siteConfig.name })}
     </h1>
 
     <div class="prose-retro">
       <p>
-        <strong>{siteConfig.name}</strong> is my personal space on the web —
-        notes, projects, and ideas in one place.
+        {t("home.intro", { name: siteConfig.name })}
       </p>
-      <p class="text-muted-foreground">{siteConfig.tagline}</p>
+      <p class="text-muted-foreground">{t("home.tagline")}</p>
     </div>
 
     <div class="flex flex-wrap gap-3 pt-1">
-      <Button href="/notes">Read notes</Button>
-      <Button href="/projects" variant="outline">View projects</Button>
+      <Button href="/notes">{t("home.readNotes")}</Button>
+      <Button href="/projects" variant="outline">{t("home.viewProjects")}</Button>
     </div>
   </div>
 
   <div class="pixel-border bg-card p-4">
-    <p class="font-pixel text-[8px] uppercase text-muted-foreground">
-      System status
-    </p>
-    <dl class="font-retro mt-3 grid gap-2 text-base sm:grid-cols-3">
+    <p class="type-caption">{t("home.systemStatus")}</p>
+    <dl class="type-body mt-3 grid gap-2 sm:grid-cols-3">
       <div>
-        <dt class="text-muted-foreground text-sm">Notes</dt>
+        <dt class="type-meta text-sm">{t("home.notesCount")}</dt>
         <dd class="font-medium">{data.stats.postCount}</dd>
       </div>
       <div>
-        <dt class="text-muted-foreground text-sm">Projects</dt>
+        <dt class="type-meta text-sm">{t("home.projectsCount")}</dt>
         <dd class="font-medium">{data.stats.projectCount}</dd>
       </div>
       <div>
-        <dt class="text-muted-foreground text-sm">Last update</dt>
+        <dt class="type-meta text-sm">{t("home.lastUpdate")}</dt>
         <dd class="font-medium">{lastUpdatedDisplay ?? "—"}</dd>
       </div>
     </dl>
@@ -62,12 +74,12 @@
   {#if data.recentPosts.length > 0}
     <section class="space-y-3">
       <div class="flex items-center justify-between gap-3">
-        <h2 class="font-pixel text-xs uppercase text-primary">Recent notes</h2>
+        <h2 class="type-section">{t("home.recentNotes")}</h2>
         <a
           href="/notes"
-          class="font-pixel text-[8px] uppercase text-[var(--ring)] hover:text-accent"
+          class="type-caption text-[var(--ring)] hover:text-accent"
         >
-          View all
+          {t("home.viewAll")}
         </a>
       </div>
       <ul class="pixel-border bg-card divide-y-2 divide-border">
@@ -77,11 +89,8 @@
               href="/notes/{post.slug}"
               class="hover:bg-muted/40 flex items-baseline justify-between gap-3 px-4 py-3 no-underline"
             >
-              <span class="font-retro text-lg text-foreground">{post.title}</span>
-              <time
-                datetime={post.dateISO}
-                class="text-muted-foreground shrink-0 font-retro text-sm"
-              >
+              <span class="type-body-lg text-foreground">{post.title}</span>
+              <time datetime={post.dateISO} class="type-meta shrink-0 text-sm">
                 {post.dateDisplay}
               </time>
             </a>
@@ -94,12 +103,12 @@
   {#if data.featuredProjects.length > 0}
     <section class="space-y-3">
       <div class="flex items-center justify-between gap-3">
-        <h2 class="font-pixel text-xs uppercase text-primary">Projects</h2>
+        <h2 class="type-section">{t("home.projects")}</h2>
         <a
           href="/projects"
-          class="font-pixel text-[8px] uppercase text-[var(--ring)] hover:text-accent"
+          class="type-caption text-[var(--ring)] hover:text-accent"
         >
-          View all
+          {t("home.viewAll")}
         </a>
       </div>
       <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -127,9 +136,7 @@
               />
             </a>
             {#if project.description}
-              <p
-                class="font-retro text-foreground/85 mt-2 text-sm leading-relaxed text-pretty"
-              >
+              <p class="type-body text-foreground/85 mt-2 text-sm text-pretty">
                 {project.description}
               </p>
             {/if}

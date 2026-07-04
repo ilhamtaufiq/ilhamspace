@@ -6,6 +6,7 @@ import { renderPostHtml } from "$lib/editor/render";
 import { parseTags } from "$lib/schemas/post";
 import { db } from "$lib/db/index";
 import { type Post, posts } from "$lib/db/schema";
+import { slugify } from "$lib/editor/slug";
 
 export type PostInput = {
   title: string;
@@ -14,6 +15,11 @@ export type PostInput = {
   tags?: string;
   status: "draft" | "published";
   contentJson: string;
+};
+
+export type ImportedPostInput = Omit<PostInput, "slug"> & {
+  slug?: string;
+  publishedAt?: Date | null;
 };
 
 const serializeTags = (raw: string | undefined): string | null => {
@@ -59,6 +65,49 @@ export const isSlugTaken = async (
   } catch (error) {
     console.error("[server/posts] slug check error:", error);
     return true;
+  }
+};
+
+export const createImportedPost = async (
+  input: ImportedPostInput,
+): Promise<Post | null> => {
+  try {
+    const slug =
+      slugify(input.slug ?? input.title) || slugify(input.title) || "post";
+
+    if (await isSlugTaken(slug)) {
+      return null;
+    }
+
+    const now = new Date();
+    const contentHtml = renderPostHtml(input.contentJson);
+    const publishedAt =
+      input.status === "published"
+        ? (input.publishedAt ?? now)
+        : null;
+    const createdAt = input.publishedAt ?? now;
+
+    const rows = await db
+      .insert(posts)
+      .values({
+        id: randomUUID(),
+        title: input.title,
+        slug,
+        description: input.description ?? null,
+        contentJson: input.contentJson,
+        contentHtml,
+        tags: serializeTags(input.tags),
+        status: input.status,
+        publishedAt,
+        createdAt,
+        updatedAt: publishedAt ?? now,
+      })
+      .returning();
+
+    return rows[0] ?? null;
+  } catch (error) {
+    console.error("[server/posts] import create error:", error);
+    return null;
   }
 };
 

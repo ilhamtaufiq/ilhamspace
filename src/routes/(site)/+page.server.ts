@@ -4,7 +4,7 @@ import { getPublishedProjects } from "$lib/server/projects";
 
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ locals }) => {
   const [posts, projects] = await Promise.all([
     getPublishedPosts(),
     getPublishedProjects(),
@@ -17,7 +17,9 @@ export const load: PageServerLoad = async () => {
     .sort((a, b) => b.getTime() - a.getTime())[0];
 
   return {
-    recentPosts: posts.slice(0, 3).map(formatPostPreview),
+    recentPosts: posts
+      .slice(0, 5)
+      .map((post) => formatPostPreview(post, locals.locale)),
     featuredProjects: projects.slice(0, 3).map((project) => ({
       id: project.id,
       title: project.title,

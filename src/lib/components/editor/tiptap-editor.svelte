@@ -108,7 +108,7 @@
       content,
       editorProps: {
         attributes: {
-          class: "prose-retro min-h-[36vh] outline-none",
+          class: "tiptap prose-retro min-h-[36vh] outline-none",
         },
         handlePaste: (_view, event): boolean =>
           handleClipboardImages(instance, event),

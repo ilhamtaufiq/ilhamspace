@@ -2,12 +2,17 @@
   import { IconMoon, IconSun } from "@tabler/icons-svelte";
   import { onMount } from "svelte";
 
-  import RocketLogo from "$lib/components/brand/rocket-logo.svelte";
   import Button from "$lib/components/ui/button.svelte";
   import Menu from "$lib/components/layout/menu.svelte";
   import { siteConfig } from "$lib/config/site";
   import { toggleTheme } from "$lib/theme";
   import { cn } from "$lib/utils";
+
+  type Props = {
+    isAdmin?: boolean;
+  };
+
+  let { isAdmin = false }: Props = $props();
 
   let isScrolled = $state(false);
 
@@ -35,17 +40,19 @@
         class="hover:text-accent flex shrink-0 items-center gap-2.5 no-underline"
         aria-label={siteConfig.name}
       >
-        <span
-          class="pixel-border bg-accent text-accent-foreground flex size-8 items-center justify-center"
-        >
-          <RocketLogo size={18} />
-        </span>
+        <img
+          src="/logo.jpg"
+          alt=""
+          width={32}
+          height={32}
+          class="pixel-border image-rendering-pixelated size-8 object-cover"
+        />
         <span class="font-pixel hidden text-[10px] uppercase sm:inline sm:text-xs">
           {siteConfig.name}
         </span>
       </a>
       <span class="bg-border h-7 w-0.5" aria-hidden="true"></span>
-      <Menu />
+      <Menu {isAdmin} />
     </div>
 
     <Button

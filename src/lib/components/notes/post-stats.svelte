@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
 
   import Badge from "$lib/components/ui/badge.svelte";
+  import { getLocaleContext } from "$lib/i18n/context";
   import {
     formatStatCount,
     getPlaceholderPostStats,
@@ -10,19 +11,18 @@
 
   type Props = {
     slug: string;
+    commentCount?: number;
   };
 
-  let { slug }: Props = $props();
+  let { slug, commentCount = 0 }: Props = $props();
+  const { t } = getLocaleContext();
 
   let loaded = $state(false);
   let views = $state(0);
-  let comments = $state(0);
 
   onMount(() => {
     const timer = window.setTimeout(() => {
-      const stats = getPlaceholderPostStats(slug);
-      views = stats.views;
-      comments = stats.comments;
+      views = getPlaceholderPostStats(slug).views;
       loaded = true;
     }, 320);
 
@@ -40,13 +40,13 @@
     aria-hidden="true"
   ></span>
 {:else}
-  <Badge title="Views — coming soon" class="opacity-80">
+  <Badge title={t("stats.viewsSoon")} class="opacity-80">
     <IconEye class="size-3.5 shrink-0 opacity-65" aria-hidden="true" />
     {formatStatCount(views)}
   </Badge>
 
-  <Badge href="/{slug}#comments" title="Comments — coming soon" class="ml-1 opacity-80">
+  <Badge href="/{slug}#comments" title={t("stats.commentsSoon")} class="ml-1 opacity-80">
     <IconMessages class="size-3.5 shrink-0 opacity-65" aria-hidden="true" />
-    {formatStatCount(comments)}
+    {formatStatCount(commentCount)}
   </Badge>
 {/if}

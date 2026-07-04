@@ -8,6 +8,7 @@ declare global {
         name: string;
         isAdmin: boolean;
       } | null;
+      locale: import("$lib/i18n/constants").Locale;
     }
     // interface PageData {}
     // interface PageState {}

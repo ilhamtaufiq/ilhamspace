@@ -6,10 +6,17 @@ export const siteConfig = {
   license: "CC-BY-4.0",
 } as const;
 
+import { browser } from "$app/environment";
+
 export const getSiteUrl = (): string => {
+  if (browser) {
+    return window.location.origin;
+  }
+
   const origin = process.env.ORIGIN?.trim();
   if (origin) {
     return origin.replace(/\/$/, "");
   }
+
   return "http://localhost:5173";
 };

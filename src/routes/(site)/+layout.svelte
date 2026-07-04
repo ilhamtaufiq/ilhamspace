@@ -1,15 +1,24 @@
 <script lang="ts">
+  import type { Snippet } from "svelte";
+
   import Footer from "$lib/components/layout/footer.svelte";
   import Header from "$lib/components/layout/header.svelte";
   import { siteConfig } from "$lib/config/site";
+  import { setLocaleContext } from "$lib/i18n/context";
 
-  let { children } = $props();
+  import type { LayoutData } from "./$types";
+
+  let { data, children }: { data: LayoutData; children: Snippet } = $props();
+
+  setLocaleContext(() => data.locale);
+
+  $effect(() => {
+    document.documentElement.lang = data.locale;
+  });
 </script>
 
 <svelte:head>
-  <title>{siteConfig.name}</title>
-  <meta name="description" content={siteConfig.description} />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/logo.jpg" type="image/jpeg" />
   <link
     rel="alternate"
     type="application/rss+xml"
@@ -18,7 +27,7 @@
   />
 </svelte:head>
 
-<Header />
+<Header isAdmin={data.user?.isAdmin ?? false} />
 <main class="page-content w-full">
   {@render children()}
 </main>

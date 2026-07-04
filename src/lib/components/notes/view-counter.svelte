@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from "svelte";
 
+  import { getLocaleContext } from "$lib/i18n/context";
   import { formatStatCount, getPlaceholderPostStats } from "$lib/stats/placeholder";
 
   type Props = {
@@ -8,6 +9,7 @@
   };
 
   let { slug }: Props = $props();
+  const { t } = getLocaleContext();
 
   let views = $state<number | null>(null);
 
@@ -22,7 +24,7 @@
 
 <span
   class={views === null ? "motion-safe:animate-pulse" : "opacity-70"}
-  title="View counter — coming soon"
+  title={t("stats.viewCounterSoon")}
 >
   {views === null ? "0" : formatStatCount(views)}
 </span>

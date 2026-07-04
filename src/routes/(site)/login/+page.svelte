@@ -1,15 +1,26 @@
 <script lang="ts">
+  import HeadMeta from "$lib/components/seo/head-meta.svelte";
+  import PageTitle from "$lib/components/layout/page-title.svelte";
+  import { buildPageTitle } from "$lib/seo/meta";
   import Button from "$lib/components/ui/button.svelte";
   import Input from "$lib/components/ui/input.svelte";
   import Label from "$lib/components/ui/label.svelte";
-  import PageTitle from "$lib/components/layout/page-title.svelte";
+  import { getLocaleContext } from "$lib/i18n/context";
 
   import type { ActionData } from "./$types";
 
   let { form }: { form: ActionData } = $props();
+  const { t } = getLocaleContext();
 </script>
 
-<PageTitle href="/login">login</PageTitle>
+<HeadMeta
+  title={buildPageTitle(t("seo.loginTitle"))}
+  description={t("seo.loginDescription")}
+  path="/login"
+  noindex
+/>
+
+<PageTitle href="/login">{t("login.title")}</PageTitle>
 
 <div class="pixel-border bg-card mx-auto max-w-sm p-6">
   <form method="POST" class="space-y-4">
@@ -23,7 +34,7 @@
     {/if}
 
     <div class="space-y-2">
-      <Label for="email">Email</Label>
+      <Label for="email">{t("login.email")}</Label>
       <Input
         id="email"
         name="email"
@@ -36,7 +47,7 @@
     </div>
 
     <div class="space-y-2">
-      <Label for="password">Password</Label>
+      <Label for="password">{t("login.password")}</Label>
       <Input
         id="password"
         name="password"
@@ -47,6 +58,6 @@
       />
     </div>
 
-    <Button type="submit" class="w-full">Sign in</Button>
+    <Button type="submit" class="w-full">{t("login.signIn")}</Button>
   </form>
 </div>

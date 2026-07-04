@@ -42,12 +42,8 @@ export const resolveUploadPath = (filename: string): string | null => {
   return filePath;
 };
 
-export const sniffImageMime = async (file: File): Promise<string | null> => {
-  if (file.type && ALLOWED_MIME_TYPES.has(file.type)) {
-    return file.type;
-  }
-
-  const header = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+export const sniffImageMimeFromBuffer = (buffer: Buffer): string | null => {
+  const header = new Uint8Array(buffer.subarray(0, 12));
 
   if (header[0] === 0x89 && header[1] === 0x50 && header[2] === 0x4e) {
     return "image/png";
@@ -77,6 +73,20 @@ export const sniffImageMime = async (file: File): Promise<string | null> => {
     header[11] === 0x50
   ) {
     return "image/webp";
+  }
+
+  return null;
+};
+
+export const sniffImageMime = async (file: File): Promise<string | null> => {
+  if (file.type && ALLOWED_MIME_TYPES.has(file.type)) {
+    return file.type;
+  }
+
+  const header = new Uint8Array(await file.slice(0, 12).arrayBuffer());
+  const fromBuffer = sniffImageMimeFromBuffer(Buffer.from(header));
+  if (fromBuffer) {
+    return fromBuffer;
   }
 
   return file.type && ALLOWED_MIME_TYPES.has(file.type) ? file.type : null;
