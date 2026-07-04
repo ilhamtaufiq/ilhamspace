@@ -9,13 +9,27 @@ import { schema, scriptDb } from "./db.ts";
 
 const { users } = schema;
 
+const BCRYPT_HASH_RE = /^\$2[aby]\$\d{2}\$[./A-Za-z0-9]{53}$/;
+
+const isValidBcryptHash = (hash: string): boolean => BCRYPT_HASH_RE.test(hash);
+
 const resolvePasswordHash = (): string | null => {
+  const plain = process.env.ADMIN_PASSWORD?.trim();
   const hash = process.env.ADMIN_PASSWORD_HASH?.trim();
-  if (hash) {
+
+  if (hash && isValidBcryptHash(hash)) {
     return hash;
   }
 
-  const plain = process.env.ADMIN_PASSWORD?.trim();
+  if (hash) {
+    console.error(
+      `[ensure-admin] ADMIN_PASSWORD_HASH is invalid or truncated (length ${hash.length}, expected 60).`,
+    );
+    console.error(
+      "[ensure-admin] In Coolify/Docker, bcrypt hashes must be fully quoted or use ADMIN_PASSWORD instead.",
+    );
+  }
+
   if (plain) {
     return hashSync(plain, 12);
   }

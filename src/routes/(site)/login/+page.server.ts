@@ -36,6 +36,7 @@ export const actions: Actions = {
 
     const parsed = loginSchema.safeParse(raw);
     if (!parsed.success) {
+      console.warn("[login] validation failed:", parsed.error.issues[0]?.message);
       return fail(400, {
         error: translate(event.locals.locale, "login.errorInvalid"),
         email: raw.email,
@@ -43,14 +44,35 @@ export const actions: Actions = {
     }
 
     const rows = await db
-      .select()
+      .select({
+        id: users.id,
+        isAdmin: users.isAdmin,
+        passwordHash: users.passwordHash,
+      })
       .from(users)
       .where(eq(users.email, parsed.data.email))
       .limit(1);
 
     const user = rows[0];
 
-    if (!user?.isAdmin || !verifyPassword(parsed.data.password, user.passwordHash)) {
+    if (!user) {
+      console.warn(`[login] no user for email: ${parsed.data.email}`);
+      return fail(400, {
+        error: translate(event.locals.locale, "login.errorInvalid"),
+        email: parsed.data.email,
+      });
+    }
+
+    if (!user.isAdmin) {
+      console.warn(`[login] user is not admin: ${parsed.data.email}`);
+      return fail(400, {
+        error: translate(event.locals.locale, "login.errorInvalid"),
+        email: parsed.data.email,
+      });
+    }
+
+    if (!verifyPassword(parsed.data.password, user.passwordHash)) {
+      console.warn(`[login] password mismatch for: ${parsed.data.email}`);
       return fail(400, {
         error: translate(event.locals.locale, "login.errorInvalid"),
         email: parsed.data.email,
