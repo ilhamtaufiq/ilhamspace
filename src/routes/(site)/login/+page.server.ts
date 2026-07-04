@@ -30,7 +30,7 @@ export const actions: Actions = {
 
     const formData = await event.request.formData();
     const raw = {
-      email: String(formData.get("email") ?? ""),
+      email: String(formData.get("email") ?? "").trim().toLowerCase(),
       password: String(formData.get("password") ?? ""),
     };
 
@@ -51,7 +51,7 @@ export const actions: Actions = {
     const user = rows[0];
 
     if (!user?.isAdmin || !verifyPassword(parsed.data.password, user.passwordHash)) {
-      return fail(401, {
+      return fail(400, {
         error: translate(event.locals.locale, "login.errorInvalid"),
         email: parsed.data.email,
       });
