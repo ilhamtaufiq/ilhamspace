@@ -1,0 +1,23 @@
+services:
+  ilhamspace:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ilhamspace-data:/data
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOST: 0.0.0.0
+      ORIGIN: ${ORIGIN:-http://localhost:3000}
+      DATABASE_PATH: /data/ilhamspace.db
+      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_NAME: ${ADMIN_NAME:-Admin}
+      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-}
+      SEED_ADMIN: ${SEED_ADMIN:-0}
+      BODY_SIZE_LIMIT: ${BODY_SIZE_LIMIT:-15M}
+
+volumes:
+  ilhamspace-data:
