@@ -2,9 +2,9 @@
 set -e
 
 if [ "${NODE_ENV:-}" = "production" ]; then
-  export DATABASE_PATH=/app/data/ilhamspace.db
+  export DATABASE_PATH=/persist/ilhamspace.db
 elif [ -z "${DATABASE_PATH:-}" ]; then
-  export DATABASE_PATH=/app/data/ilhamspace.db
+  export DATABASE_PATH=/persist/ilhamspace.db
 fi
 
 db_path="$DATABASE_PATH"
@@ -26,17 +26,25 @@ fi
 
 if [ -n "${mount_root}" ]; then
   case "${mount_root}" in
+    *docker/volumes/ilhamspace-data/_data)
+      echo "[entrypoint] Storage: ilhamspace-data -> ${data_dir}"
+      ;;
     *docker/volumes/*/_data)
       volume_name="$(echo "${mount_root}" | sed 's|.*/docker/volumes/\([^/]*\)/_data|\1|')"
-      echo "[entrypoint] Storage: ${data_dir} (docker volume ${volume_name})"
-      echo "[entrypoint] Hapus Persistent Storage di Coolify — spm-am pakai ./data bind, bukan volume hash."
+      echo "[entrypoint] WARNING: unexpected volume '${volume_name}' on ${data_dir}"
       ;;
     *)
-      echo "[entrypoint] Storage: ${data_dir} (bind ${mount_root})"
+      echo "[entrypoint] Storage: bind ${mount_root} -> ${data_dir}"
       ;;
   esac
 else
-  echo "[entrypoint] WARNING: ${data_dir} tidak di-mount — cek docker-compose ./data:/app/data"
+  echo "[entrypoint] FATAL: ${data_dir} not mounted (need ilhamspace-data:/persist in compose)"
+  exit 1
+fi
+
+app_data="$(awk '$5 == "/app/data" { print $4; exit }' /proc/self/mountinfo 2>/dev/null || true)"
+if [ -n "${app_data}" ]; then
+  echo "[entrypoint] NOTE: /app/data mounted by Coolify — ignored, DB is on ${data_dir}"
 fi
 
 if [ -f "$db_path" ]; then
@@ -51,7 +59,7 @@ fi
 run_migrate=0
 case "${RUN_MIGRATIONS:-auto}" in
   0|false|no|skip)
-    echo "[entrypoint] Skipping migrations (RUN_MIGRATIONS=${RUN_MIGRATIONS})"
+    echo "[entrypoint] Skipping migrations"
     ;;
   1|true|yes|force)
     run_migrate=1
