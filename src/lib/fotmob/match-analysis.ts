@@ -1,3 +1,4 @@
+import { formatFootballKickoff } from "$lib/football/datetime";
 import { mapPlayerStatsIndex } from "$lib/fotmob/match-player-stats";
 import { mapMatchStats } from "$lib/fotmob/match-stats";
 import { getRoundLabel } from "$lib/fotmob/world-cup";
@@ -398,21 +399,6 @@ const buildInsights = (
   return insights.slice(0, 5);
 };
 
-const formatKickoff = (utc: string | undefined, locale: Locale): string => {
-  if (!utc) {
-    return "—";
-  }
-  const date = new Date(utc);
-  return date.toLocaleString(locale === "id" ? "id-ID" : "en-US", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
 type LiveTimeStatus = {
   short?: string;
   addedTime?: number;
@@ -537,7 +523,7 @@ export const mapMatchDetail = (
     round,
     roundLabel: getRoundLabel(round, locale),
     kickoff: kickoffUtc ?? "",
-    kickoffLabel: formatKickoff(kickoffUtc, locale),
+    kickoffLabel: formatFootballKickoff(kickoffUtc, locale),
     statusShort,
     statusLong: reason?.long ?? "",
     matchMinute: extractMatchMinute(

@@ -7,6 +7,7 @@ export const GET: RequestHandler = async () => {
 
   const body = `User-agent: *
 Allow: /
+Allow: /api/og/
 Disallow: /admin
 Disallow: /login
 Disallow: /api/

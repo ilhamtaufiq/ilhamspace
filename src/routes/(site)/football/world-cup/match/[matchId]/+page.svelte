@@ -15,7 +15,12 @@
   import HeadMeta from "$lib/components/seo/head-meta.svelte";
   import { FOTMOB_TEAM_LOGO } from "$lib/fotmob/constants";
   import { getLocaleContext } from "$lib/i18n/context";
-  import { buildMatchOgImagePath, buildPageTitle } from "$lib/seo/meta";
+  import {
+    buildMatchInsightsSummary,
+    buildMatchOgImagePath,
+    buildMatchShareTitle,
+    buildPageTitle,
+  } from "$lib/seo/meta";
 
   import type { PageData } from "./$types";
 
@@ -24,8 +29,22 @@
   const { t, locale } = getLocaleContext();
   const match = $derived(data.match);
 
-  const pageTitle = $derived(
-    `${match.home.name} vs ${match.away.name}`,
+  const shareTitle = $derived(
+    buildMatchShareTitle({
+      homeName: match.home.name,
+      awayName: match.away.name,
+      homeScore: match.home.score,
+      awayScore: match.away.score,
+      roundLabel: match.roundLabel,
+      isLive: match.isLive,
+      matchMinute: match.matchMinute,
+      statusShort: match.statusShort,
+    }),
+  );
+
+  const shareDescription = $derived(
+    buildMatchInsightsSummary(match.insights) ||
+      t("seo.worldCupDescription"),
   );
 
   const ogImageAlt = $derived(
@@ -34,8 +53,8 @@
 </script>
 
 <HeadMeta
-  title={buildPageTitle(`${pageTitle} — ${t("seo.worldCupTitle")}`)}
-  description={match.insights[0] ?? t("seo.worldCupDescription")}
+  title={buildPageTitle(`${shareTitle} — ${t("seo.worldCupTitle")}`)}
+  description={shareDescription}
   path="/football/world-cup/match/{match.matchId}"
   image={buildMatchOgImagePath(match.matchId)}
   imageAlt={ogImageAlt}

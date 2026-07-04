@@ -57,6 +57,7 @@
   <meta property="og:locale" content="id_ID" />
   <meta property="og:locale:alternate" content="en_US" />
   <meta property="og:image" content={ogImageUrl} />
+  <meta property="og:image:secure_url" content={ogImageUrl} />
   <meta property="og:image:alt" content={ogImageAlt} />
   {#if imageWidth}
     <meta property="og:image:width" content={String(imageWidth)} />
@@ -69,6 +70,7 @@
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
   <meta name="twitter:image" content={ogImageUrl} />
+  <meta name="twitter:image:src" content={ogImageUrl} />
   <meta name="twitter:image:alt" content={ogImageAlt} />
 
   {#if type === "article" && publishedAt}

@@ -1,3 +1,4 @@
+import { formatFootballShortDateTime } from "$lib/football/datetime";
 import type {
   KnockoutMatchupView,
   KnockoutRoundView,
@@ -43,7 +44,10 @@ const formatScore = (matchup: PlayoffMatchup): string => {
   return "—";
 };
 
-const formatStatus = (matchup: PlayoffMatchup): string => {
+const formatStatus = (
+  matchup: PlayoffMatchup,
+  locale: "id" | "en",
+): string => {
   const match = matchup.matches?.[0];
   const status = match?.status;
   if (!status) {
@@ -56,18 +60,16 @@ const formatStatus = (matchup: PlayoffMatchup): string => {
     return "LIVE";
   }
   if (status.utcTime) {
-    const date = new Date(status.utcTime);
-    return date.toLocaleString(undefined, {
-      month: "short",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+    return formatFootballShortDateTime(status.utcTime, locale);
   }
   return "";
 };
 
-const mapMatchup = (matchup: PlayoffMatchup, stage: string): KnockoutMatchupView => {
+const mapMatchup = (
+  matchup: PlayoffMatchup,
+  stage: string,
+  locale: "id" | "en",
+): KnockoutMatchupView => {
   const match = matchup.matches?.[0];
   const homeTbd = matchup.tbdTeam1 === true;
   const awayTbd = matchup.tbdTeam2 === true;
@@ -84,7 +86,7 @@ const mapMatchup = (matchup: PlayoffMatchup, stage: string): KnockoutMatchupView
     homeTeamId: homeTbd ? undefined : matchup.homeTeamId,
     awayTeamId: awayTbd ? undefined : matchup.awayTeamId,
     score: formatScore(matchup),
-    statusLabel: formatStatus(matchup),
+    statusLabel: formatStatus(matchup, locale),
     winnerTeamId: winner,
     matchId: match?.matchId,
     isTbd: homeTbd || awayTbd,
@@ -100,6 +102,8 @@ export const mapPlayoffToBracket = (
   return data.rounds.map((round) => ({
     stage: round.stage,
     label: getRoundLabel(round.stage, locale),
-    matchups: round.matchups.map((matchup) => mapMatchup(matchup, round.stage)),
+    matchups: round.matchups.map((matchup) =>
+      mapMatchup(matchup, round.stage, locale),
+    ),
   }));
 };

@@ -51,6 +51,48 @@ export const resolveOgImageUrl = (image?: string | null): string =>
 export const buildMatchOgImagePath = (matchId: number): string =>
   `/api/og/football/match/${matchId}`;
 
+export const buildMatchInsightsSummary = (
+  insights: string[],
+  maxLength = 300,
+): string => {
+  if (insights.length === 0) {
+    return "";
+  }
+
+  let summary = "";
+  for (const insight of insights) {
+    const part = `▸ ${insight.trim()}`;
+    const next = summary ? `${summary} ${part}` : part;
+    if (next.length > maxLength) {
+      break;
+    }
+    summary = next;
+  }
+
+  return summary || truncateDescription(`▸ ${insights[0].trim()}`, maxLength);
+};
+
+export const buildMatchShareTitle = (input: {
+  homeName: string;
+  awayName: string;
+  homeScore: number;
+  awayScore: number;
+  roundLabel: string;
+  isLive: boolean;
+  matchMinute: string;
+  statusShort: string;
+}): string => {
+  const scoreLine = `${input.homeName} ${input.homeScore}-${input.awayScore} ${input.awayName}`;
+  const status = input.matchMinute
+    ? input.matchMinute
+    : input.isLive
+      ? "LIVE"
+      : input.statusShort;
+  return status
+    ? `${scoreLine} · ${input.roundLabel} · ${status}`
+    : `${scoreLine} · ${input.roundLabel}`;
+};
+
 const IMG_SRC_RE = /<img\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i;
 
 export const extractFirstImageFromHtml = (html: string): string | null => {
