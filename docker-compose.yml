@@ -1,5 +1,6 @@
-# Named volume = data survives container rebuilds (bind ./data sering tidak
-# terpasang / ditimpa Coolify). Hapus SEMUA Persistent Storage di dashboard.
+# DB disimpan di persistent volume Docker (nama tetap, tidak hilang saat redeploy).
+# Coolify: Build Pack = Docker Compose. Jangan tambah Persistent Storage di UI
+# (sudah didefinisikan di sini). Hapus env DATABASE_PATH jika masih ada.
 services:
   app:
     build:

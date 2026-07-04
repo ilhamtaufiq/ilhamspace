@@ -23,7 +23,7 @@ export const GET: RequestHandler = (): Response => {
 
   return Response.json({
     ok: volume.storage_ok && dbExists,
-    storage_version: "v2-named-volume",
+    storage_version: "persistent-volume",
     source_commit: process.env.SOURCE_COMMIT ?? null,
     db_path: dbPath,
     db_bytes: dbBytes,
