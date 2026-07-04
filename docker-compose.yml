@@ -1,5 +1,5 @@
-# DB di /persist — BUKAN /app/data (Coolify Persistent Storage menimpa /app/data dengan volume hash baru tiap deploy).
-# Volume "ilhamspace-data" dibuat otomatis oleh Docker, tanpa SSH.
+# Bind ke folder persisten Coolify (sama seperti spm-am ./data, tapi path eksplisit).
+# Hapus semua "Persistent Storage" di Coolify UI — itu bikin volume hash baru tiap deploy.
 services:
   app:
     build:
@@ -10,13 +10,15 @@ services:
     expose:
       - 3000
     volumes:
-      - ilhamspace-data:/persist
+      - type: bind
+        source: /data/coolify/applications/${COOLIFY_RESOURCE_UUID}/data
+        target: /app/data
     environment:
       - NODE_ENV=production
       - PORT=3000
       - HOST=0.0.0.0
       - ORIGIN=${ORIGIN:-https://is.cianjur.space}
-      - DATABASE_PATH=/persist/ilhamspace.db
+      - DATABASE_PATH=/app/data/ilhamspace.db
       - SESSION_SECRET=${SESSION_SECRET:?Set SESSION_SECRET}
       - ADMIN_EMAIL=${ADMIN_EMAIL:-}
       - ADMIN_NAME=${ADMIN_NAME:-Admin}
@@ -32,7 +34,3 @@ services:
 networks:
   coolify:
     external: true
-
-volumes:
-  ilhamspace-data:
-    name: ilhamspace-data
