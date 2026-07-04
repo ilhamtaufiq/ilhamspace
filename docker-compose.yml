@@ -1,6 +1,6 @@
-# Coolify: DB lives at /var/lib/ilhamspace — NOT /app/data.
-# Coolify "Persistent Storage" on /app/data injects a new hash volume each redeploy.
-# Leave Coolify Persistent Storage empty; this compose volume is enough.
+# Coolify: identical pattern to SPM. DB in ./data on the Coolify server.
+# DELETE all "Persistent Storage" entries in Coolify UI — they override this bind
+# with a new hash volume each time and wipe the database on redeploy.
 services:
   app:
     build:
@@ -11,13 +11,13 @@ services:
     expose:
       - 3000
     volumes:
-      - ilhamspace-data:/var/lib/ilhamspace
+      - ./data:/app/data
     environment:
       - NODE_ENV=production
       - PORT=3000
       - HOST=0.0.0.0
       - ORIGIN=${ORIGIN:-https://is.cianjur.space}
-      - DATABASE_PATH=/var/lib/ilhamspace/ilhamspace.db
+      - DATABASE_PATH=/app/data/ilhamspace.db
       - SESSION_SECRET=${SESSION_SECRET:?Set SESSION_SECRET}
       - ADMIN_EMAIL=${ADMIN_EMAIL:-}
       - ADMIN_NAME=${ADMIN_NAME:-Admin}
@@ -33,7 +33,3 @@ services:
 networks:
   coolify:
     external: true
-
-volumes:
-  ilhamspace-data:
-    name: ilhamspace-data

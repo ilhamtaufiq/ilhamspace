@@ -3,6 +3,7 @@ import { readFileSync } from "node:fs";
 export type VolumeInfo = {
   mounted: boolean;
   mount_root: string | null;
+  volume_name: string | null;
   storage_ok: boolean;
   storage_type: "docker_volume" | "bind" | "missing";
 };
@@ -17,20 +18,22 @@ export const getVolumeInfo = (dataDir: string): VolumeInfo => {
       return {
         mounted: false,
         mount_root: null,
+        volume_name: null,
         storage_ok: false,
         storage_type: "missing",
       };
     }
 
     const mountRoot = line.split(/\s+/)[3] ?? null;
-    const volumeName = mountRoot?.match(/\/docker\/volumes\/([^/]+)\/_data$/)?.[1] ?? null;
-    const isNamedVolume = volumeName === "ilhamspace-data";
+    const volumeName =
+      mountRoot?.match(/\/docker\/volumes\/([^/]+)\/_data$/)?.[1] ?? null;
 
     if (mountRoot?.includes("docker/volumes") === true) {
       return {
         mounted: true,
         mount_root: mountRoot,
-        storage_ok: isNamedVolume,
+        volume_name: volumeName,
+        storage_ok: true,
         storage_type: "docker_volume",
       };
     }
@@ -39,6 +42,7 @@ export const getVolumeInfo = (dataDir: string): VolumeInfo => {
       return {
         mounted: true,
         mount_root: mountRoot,
+        volume_name: null,
         storage_ok: false,
         storage_type: "bind",
       };
@@ -47,6 +51,7 @@ export const getVolumeInfo = (dataDir: string): VolumeInfo => {
     return {
       mounted: true,
       mount_root: mountRoot,
+      volume_name: null,
       storage_ok: true,
       storage_type: "bind",
     };
@@ -54,6 +59,7 @@ export const getVolumeInfo = (dataDir: string): VolumeInfo => {
     return {
       mounted: false,
       mount_root: null,
+      volume_name: null,
       storage_ok: false,
       storage_type: "missing",
     };

@@ -5,7 +5,7 @@ export const getDatabasePath = (): string => {
   const raw =
     process.env.DATABASE_PATH ??
     (process.env.NODE_ENV === "production"
-      ? "/var/lib/ilhamspace/ilhamspace.db"
+      ? "/app/data/ilhamspace.db"
       : "./data/ilhamspace.db");
   return resolve(raw);
 };
