@@ -3,9 +3,9 @@ set -e
 
 # Production always uses the Docker volume path — never ./data inside the image.
 if [ "${NODE_ENV:-}" = "production" ]; then
-  export DATABASE_PATH=/app/data/ilhamspace.db
+  export DATABASE_PATH=/var/lib/ilhamspace/ilhamspace.db
 elif [ -z "${DATABASE_PATH:-}" ]; then
-  export DATABASE_PATH=/app/data/ilhamspace.db
+  export DATABASE_PATH=/var/lib/ilhamspace/ilhamspace.db
 fi
 
 db_path="$DATABASE_PATH"
@@ -19,6 +19,13 @@ if [ -f "$history_file" ]; then
 fi
 echo "$(date -Iseconds) deploy #${deploy_num}" >> "$history_file"
 echo "[entrypoint] Deploy #${deploy_num} (history: ${history_file})"
+
+coolify_leak="$(awk '$5 == "/app/data" { print $4; exit }' /proc/self/mountinfo 2>/dev/null || true)"
+if [ -n "${coolify_leak}" ]; then
+  leak_name="$(echo "${coolify_leak}" | sed 's|.*/docker/volumes/\([^/]*\)/_data|\1|')"
+  echo "[entrypoint] NOTE: Coolify still mounts /app/data (${leak_name:-bind}) — safe to ignore; DB is on ${data_dir}."
+  echo "[entrypoint] Remove unused Persistent Storage for /app/data in Coolify UI when convenient."
+fi
 
 mount_root=""
 if [ -r /proc/self/mountinfo ]; then
@@ -37,13 +44,10 @@ if [ -n "${mount_root}" ]; then
     *docker/volumes*)
       echo "[entrypoint] Docker volume (${volume_name:-unknown}): ${mount_root} -> ${data_dir}"
       if [ -n "${volume_name}" ] && [ "${volume_name}" != "ilhamspace-data" ]; then
-        case "${volume_name}" in
-          ????????????????????????????????????????????????????????????????)
-            echo "[entrypoint] WARNING: Ephemeral Coolify hash volume detected (${volume_name})."
-            echo "[entrypoint] Coolify UI -> Persistent Storage -> DELETE all /app/data entries."
-            echo "[entrypoint] Compose must use named volume ilhamspace-data only."
-            ;;
-        esac
+        echo "[entrypoint] FATAL: Wrong volume '${volume_name}' on ${data_dir}."
+        echo "[entrypoint] Coolify Persistent Storage is overriding compose — delete ALL storage entries."
+        echo "[entrypoint] Expected named volume: ilhamspace-data on /var/lib/ilhamspace"
+        exit 1
       fi
       ;;
     /)
@@ -56,7 +60,7 @@ if [ -n "${mount_root}" ]; then
   esac
 else
   echo "[entrypoint] FATAL: ${data_dir} is not mounted."
-  echo "[entrypoint] docker-compose.yml must mount ilhamspace-data:/app/data"
+  echo "[entrypoint] docker-compose.yml must mount ilhamspace-data:/var/lib/ilhamspace"
   if [ "${NODE_ENV:-}" = "production" ]; then
     exit 1
   fi

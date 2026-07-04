@@ -1,6 +1,6 @@
-# Coolify Docker Compose
-# 1. DELETE all "Persistent Storage" entries in Coolify UI (they create new hash volumes each deploy).
-# 2. This file uses a fixed named volume "ilhamspace-data" — reused across redeploys.
+# Coolify: DB lives at /var/lib/ilhamspace — NOT /app/data.
+# Coolify "Persistent Storage" on /app/data injects a new hash volume each redeploy.
+# Leave Coolify Persistent Storage empty; this compose volume is enough.
 services:
   app:
     build:
@@ -11,13 +11,13 @@ services:
     expose:
       - 3000
     volumes:
-      - ilhamspace-data:/app/data
+      - ilhamspace-data:/var/lib/ilhamspace
     environment:
       - NODE_ENV=production
       - PORT=3000
       - HOST=0.0.0.0
       - ORIGIN=${ORIGIN:-https://is.cianjur.space}
-      - DATABASE_PATH=/app/data/ilhamspace.db
+      - DATABASE_PATH=/var/lib/ilhamspace/ilhamspace.db
       - SESSION_SECRET=${SESSION_SECRET:?Set SESSION_SECRET}
       - ADMIN_EMAIL=${ADMIN_EMAIL:-}
       - ADMIN_NAME=${ADMIN_NAME:-Admin}
