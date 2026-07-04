@@ -26,21 +26,37 @@ if [ -r /proc/self/mountinfo ]; then
 fi
 
 if [ -n "${mount_root}" ]; then
+  volume_name=""
+  case "${mount_root}" in
+    *docker/volumes/*/_data)
+      volume_name="$(echo "${mount_root}" | sed 's|.*/docker/volumes/\([^/]*\)/_data|\1|')"
+      ;;
+  esac
+
   case "${mount_root}" in
     *docker/volumes*)
-      echo "[entrypoint] Docker volume: ${mount_root} -> ${data_dir}"
+      echo "[entrypoint] Docker volume (${volume_name:-unknown}): ${mount_root} -> ${data_dir}"
+      if [ -n "${volume_name}" ] && [ "${volume_name}" != "ilhamspace-data" ]; then
+        case "${volume_name}" in
+          ????????????????????????????????????????????????????????????????)
+            echo "[entrypoint] WARNING: Ephemeral Coolify hash volume detected (${volume_name})."
+            echo "[entrypoint] Coolify UI -> Persistent Storage -> DELETE all /app/data entries."
+            echo "[entrypoint] Compose must use named volume ilhamspace-data only."
+            ;;
+        esac
+      fi
       ;;
     /)
-      echo "[entrypoint] FATAL: ${data_dir} is mounted from disk root — use ./data:/app/data in compose."
+      echo "[entrypoint] FATAL: ${data_dir} is mounted from disk root."
       exit 1
       ;;
     *)
-      echo "[entrypoint] Data bind (Coolify ./data): ${mount_root} -> ${data_dir}"
+      echo "[entrypoint] Data bind: ${mount_root} -> ${data_dir}"
       ;;
   esac
 else
   echo "[entrypoint] FATAL: ${data_dir} is not mounted."
-  echo "[entrypoint] docker-compose.yml must include: ./data:/app/data"
+  echo "[entrypoint] docker-compose.yml must mount ilhamspace-data:/app/data"
   if [ "${NODE_ENV:-}" = "production" ]; then
     exit 1
   fi

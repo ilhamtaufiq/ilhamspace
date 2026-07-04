@@ -21,12 +21,16 @@ export const GET: RequestHandler = (): Response => {
   const dbBytes = dbExists ? statSync(dbPath).size : 0;
   const volume = getVolumeInfo(dataDir);
 
+  const volumeName =
+    volume.mount_root?.match(/\/docker\/volumes\/([^/]+)\/_data$/)?.[1] ?? null;
+
   return Response.json({
     ok: volume.storage_ok,
     db_path: dbPath,
     db_bytes: dbBytes,
     db_exists: dbExists,
     volume_mounted: volume.mounted,
+    volume_name: volumeName,
     mount_root: volume.mount_root,
     storage_type: volume.storage_type,
     storage_ok: volume.storage_ok,

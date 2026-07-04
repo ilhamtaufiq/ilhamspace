@@ -1,6 +1,6 @@
-# Coolify: mirrors SPM — ./data:/app/data persists on server across redeploys.
-# Do NOT add extra "Persistent Storage" in Coolify UI.
-# SPM's trailing "volumes: data:" block is unused; this file omits it on purpose.
+# Coolify Docker Compose
+# 1. DELETE all "Persistent Storage" entries in Coolify UI (they create new hash volumes each deploy).
+# 2. This file uses a fixed named volume "ilhamspace-data" — reused across redeploys.
 services:
   app:
     build:
@@ -11,7 +11,7 @@ services:
     expose:
       - 3000
     volumes:
-      - ./data:/app/data
+      - ilhamspace-data:/app/data
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -33,3 +33,7 @@ services:
 networks:
   coolify:
     external: true
+
+volumes:
+  ilhamspace-data:
+    name: ilhamspace-data

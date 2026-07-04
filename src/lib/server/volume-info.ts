@@ -23,12 +23,14 @@ export const getVolumeInfo = (dataDir: string): VolumeInfo => {
     }
 
     const mountRoot = line.split(/\s+/)[3] ?? null;
+    const volumeName = mountRoot?.match(/\/docker\/volumes\/([^/]+)\/_data$/)?.[1] ?? null;
+    const isNamedVolume = volumeName === "ilhamspace-data";
 
     if (mountRoot?.includes("docker/volumes") === true) {
       return {
         mounted: true,
         mount_root: mountRoot,
-        storage_ok: true,
+        storage_ok: isNamedVolume,
         storage_type: "docker_volume",
       };
     }
