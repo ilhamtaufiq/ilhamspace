@@ -23,18 +23,28 @@ echo "[entrypoint] Deploy #${deploy_num} (history: ${history_file})"
 if grep -qE "[[:space:]]${data_dir}[[:space:]]" /proc/mounts 2>/dev/null; then
   mount_src="$(grep -E "[[:space:]]${data_dir}[[:space:]]" /proc/mounts | awk '{print $1}' | head -n1)"
   case "$mount_src" in
+    /dev/sda2|/dev/sda*)
+      echo "[entrypoint] FATAL: ${data_dir} is mounted from host disk ${mount_src}."
+      echo "[entrypoint] Remove that Coolify Persistent Storage entry completely."
+      echo "[entrypoint] Deploy with docker-compose.yml (ilhamspace-data:/data) or a Docker named volume on /data."
+      exit 1
+      ;;
     /dev/*)
-      echo "[entrypoint] WARNING: ${data_dir} is bound to host block device ${mount_src}."
-      echo "[entrypoint] Use Coolify Persistent Storage with a Docker named volume on /data instead."
+      echo "[entrypoint] FATAL: ${data_dir} uses block device ${mount_src} — not allowed."
+      echo "[entrypoint] Use a Docker named volume on /data instead of a host disk bind."
+      exit 1
       ;;
     *)
       echo "[entrypoint] Data volume: ${mount_src} -> ${data_dir}"
       ;;
   esac
 else
-  echo "[entrypoint] ERROR: ${data_dir} is not a persistent volume."
-  echo "[entrypoint] Coolify -> Persistent Storage -> Destination Path /data (Docker volume)."
+  echo "[entrypoint] FATAL: ${data_dir} is not mounted."
+  echo "[entrypoint] Coolify -> Persistent Storage -> Destination Path /data (Docker volume only)."
   echo "[entrypoint] Or deploy via docker-compose.yml (ilhamspace-data:/data)."
+  if [ "${NODE_ENV:-}" = "production" ]; then
+    exit 1
+  fi
 fi
 
 if [ -f "$db_path" ]; then

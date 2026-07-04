@@ -1,6 +1,6 @@
-# Coolify: use "Docker Compose" build pack (recommended) OR add Persistent Storage:
-#   Destination Path: /data  |  Type: Docker volume (NOT host bind like /dev/sda2)
-# Redeploys skip DB changes unless new migrations exist (RUN_MIGRATIONS=auto).
+# Coolify: Build Pack = Docker Compose (recommended).
+# Volume ilhamspace-data persists SQLite at /data/ilhamspace.db across redeploys.
+# Do NOT add host disk / bind storage for /data.
 services:
   ilhamspace:
     build: .
