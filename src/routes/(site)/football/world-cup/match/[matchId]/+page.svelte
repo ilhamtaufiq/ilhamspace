@@ -10,6 +10,7 @@
   import MatchMomentum from "$lib/components/football/match-momentum.svelte";
   import MatchPlayerRatings from "$lib/components/football/match-player-ratings.svelte";
   import MatchShotmap from "$lib/components/football/match-shotmap.svelte";
+  import MatchShareButton from "$lib/components/football/match-share-button.svelte";
   import MatchStatsPanel from "$lib/components/football/match-stats-panel.svelte";
   import PageTitle from "$lib/components/layout/page-title.svelte";
   import HeadMeta from "$lib/components/seo/head-meta.svelte";
@@ -50,6 +51,21 @@
   const ogImageAlt = $derived(
     `${match.home.name} ${match.home.score} - ${match.away.score} ${match.away.name}`,
   );
+
+  const shareInput = $derived({
+    homeName: match.home.name,
+    awayName: match.away.name,
+    homeScore: match.home.score,
+    awayScore: match.away.score,
+    matchMinute: match.matchMinute,
+    isLive: match.isLive,
+    isFinished: match.isFinished,
+    statusShort: match.statusShort,
+    statusLong: match.statusLong,
+    roundLabel: match.roundLabel,
+    kickoffLabel: match.kickoffLabel,
+    insights: match.insights,
+  });
 </script>
 
 <HeadMeta
@@ -136,6 +152,10 @@
         </p>
       {/if}
     </div>
+  </div>
+
+  <div class="mt-4 flex justify-center">
+    <MatchShareButton matchId={match.matchId} share={shareInput} />
   </div>
 </section>
 

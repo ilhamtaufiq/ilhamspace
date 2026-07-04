@@ -150,6 +150,22 @@ const en: Record<keyof typeof id, string> = {
   "football.playByPlayKind.summary": "Summary",
   "football.playerDetailClose": "Close player stats",
   "football.playerDetailNoStats": "Player stats are not available yet.",
+  "football.shareMatch": "Share",
+  "football.shareDone": "Shared!",
+  "football.shareCopied": "Copied to clipboard",
+  "football.shareError": "Could not share",
+  "football.shareLiveMinute":
+    "⚽ Score between {home} and {away} at {minute} still {homeScore}-{awayScore}",
+  "football.shareLive":
+    "🔴 LIVE: {home} {homeScore}-{awayScore} {away} · {round}",
+  "football.shareFinished":
+    "🏁 FT: {home} {homeScore}-{awayScore} {away} · {round}",
+  "football.shareHalftime":
+    "⏸️ HT: {home} {homeScore}-{awayScore} {away}",
+  "football.shareStatus":
+    "⚽ {home} vs {away} · {status} · {round}",
+  "football.shareScheduled":
+    "📅 {home} vs {away} · {kickoff} · {round}",
 };
 
 export default en;

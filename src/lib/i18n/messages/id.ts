@@ -149,6 +149,22 @@ const id = {
   "football.playByPlayKind.summary": "Ringkasan",
   "football.playerDetailClose": "Tutup statistik pemain",
   "football.playerDetailNoStats": "Statistik pemain belum tersedia.",
+  "football.shareMatch": "Bagikan",
+  "football.shareDone": "Terbagikan!",
+  "football.shareCopied": "Tersalin ke clipboard",
+  "football.shareError": "Gagal membagikan",
+  "football.shareLiveMinute":
+    "⚽ Skor antara {home} dan {away} menit {minute} masih {homeScore}-{awayScore}",
+  "football.shareLive":
+    "🔴 LIVE: {home} {homeScore}-{awayScore} {away} · {round}",
+  "football.shareFinished":
+    "🏁 FT: {home} {homeScore}-{awayScore} {away} · {round}",
+  "football.shareHalftime":
+    "⏸️ HT: {home} {homeScore}-{awayScore} {away}",
+  "football.shareStatus":
+    "⚽ {home} vs {away} · {status} · {round}",
+  "football.shareScheduled":
+    "📅 {home} vs {away} · {kickoff} · {round}",
 } as const;
 
 export default id;
