@@ -1,5 +1,7 @@
 const IMMUTABLE_STATIC_RE =
-  /^\/(?:_app\/immutable\/|fonts\/|favicon\.svg|logo\.svg|logo\.jpg|ilhamspace-logo-pixel\.png)/;
+  /^\/(?:_app\/immutable\/|fonts\/|favicon\.svg|ilhamspace-logo-pixel\.png)/;
+
+const LOGO_RE = /^\/logo(?:-ilhamspace)?\.jpe?g$/;
 
 const IMMUTABLE_EXT_RE = /\.(?:woff2?|png|jpe?g|webp|svg|ico|gif|avif)$/i;
 
@@ -8,6 +10,11 @@ export const applyCacheHeaders = (
   headers: Headers,
 ): void => {
   if (headers.has("cache-control")) {
+    return;
+  }
+
+  if (LOGO_RE.test(pathname)) {
+    headers.set("Cache-Control", "public, max-age=86400, must-revalidate");
     return;
   }
 

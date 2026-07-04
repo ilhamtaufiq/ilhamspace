@@ -41,7 +41,7 @@
         aria-label={siteConfig.name}
       >
         <img
-          src="/logo.jpg"
+          src={siteConfig.logoPath}
           alt=""
           width={32}
           height={32}

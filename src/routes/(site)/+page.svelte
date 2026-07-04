@@ -41,7 +41,7 @@
         class="flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-6"
       >
         <img
-          src="/logo.jpg"
+          src={siteConfig.logoPath}
           alt={siteConfig.name}
           width={112}
           height={112}
