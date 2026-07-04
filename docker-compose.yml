@@ -1,7 +1,4 @@
-# Coolify: external named volume — survives redeploys (hash volumes do not).
-# On the Coolify server, run ONCE before first deploy:
-#   docker volume create ilhamspace-db
-# DELETE all "Persistent Storage" entries in Coolify UI (especially /app/data).
+# Sama seperti spm-am: ./data di server Coolify, tanpa volume manual.
 services:
   app:
     build:
@@ -12,13 +9,13 @@ services:
     expose:
       - 3000
     volumes:
-      - ilhamspace-db:/data/db
+      - ./data:/app/data
     environment:
       - NODE_ENV=production
       - PORT=3000
       - HOST=0.0.0.0
       - ORIGIN=${ORIGIN:-https://is.cianjur.space}
-      - DATABASE_PATH=/data/db/ilhamspace.db
+      - DATABASE_PATH=/app/data/ilhamspace.db
       - SESSION_SECRET=${SESSION_SECRET:?Set SESSION_SECRET}
       - ADMIN_EMAIL=${ADMIN_EMAIL:-}
       - ADMIN_NAME=${ADMIN_NAME:-Admin}
@@ -33,9 +30,4 @@ services:
 
 networks:
   coolify:
-    external: true
-
-volumes:
-  ilhamspace-db:
-    name: ilhamspace-db
     external: true

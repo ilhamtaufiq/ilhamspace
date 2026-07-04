@@ -33,7 +33,7 @@ export const getVolumeInfo = (dataDir: string): VolumeInfo => {
         mounted: true,
         mount_root: mountRoot,
         volume_name: volumeName,
-        storage_ok: volumeName === "ilhamspace-db",
+        storage_ok: true,
         storage_type: "docker_volume",
       };
     }
