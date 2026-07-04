@@ -2,9 +2,9 @@
 set -e
 
 if [ "${NODE_ENV:-}" = "production" ]; then
-  export DATABASE_PATH=/app/data/ilhamspace.db
+  export DATABASE_PATH=/data/db/ilhamspace.db
 elif [ -z "${DATABASE_PATH:-}" ]; then
-  export DATABASE_PATH=/app/data/ilhamspace.db
+  export DATABASE_PATH=/data/db/ilhamspace.db
 fi
 
 db_path="$DATABASE_PATH"
@@ -20,6 +20,12 @@ fi
 echo "$(date -Iseconds) deploy #${deploy_num}" >> "$history_file"
 echo "[entrypoint] Deploy #${deploy_num} (history: ${history_file})"
 
+app_data_mount="$(awk '$5 == "/app/data" { print $4; exit }' /proc/self/mountinfo 2>/dev/null || true)"
+if [ -n "${app_data_mount}" ]; then
+  echo "[entrypoint] WARNING: Coolify still mounts /app/data — delete Persistent Storage in Coolify UI."
+  echo "[entrypoint] Database uses ${data_dir} via external volume ilhamspace-db instead."
+fi
+
 mount_root=""
 volume_name=""
 if [ -r /proc/self/mountinfo ]; then
@@ -30,28 +36,33 @@ if [ -n "${mount_root}" ]; then
   case "${mount_root}" in
     *docker/volumes/*/_data)
       volume_name="$(echo "${mount_root}" | sed 's|.*/docker/volumes/\([^/]*\)/_data|\1|')"
-      echo "[entrypoint] Storage: Coolify/docker volume '${volume_name}' -> ${data_dir}"
+      echo "[entrypoint] Storage: volume '${volume_name}' -> ${data_dir}"
+      if [ "${volume_name}" != "ilhamspace-db" ]; then
+        echo "[entrypoint] WARNING: Expected volume 'ilhamspace-db', got '${volume_name}'."
+        echo "[entrypoint] Run on server: docker volume create ilhamspace-db"
+        echo "[entrypoint] Remove Coolify Persistent Storage entries for /app/data."
+      fi
       if [ -f "$volume_id_file" ]; then
         prev_volume="$(cat "$volume_id_file")"
         if [ "${prev_volume}" != "${volume_name}" ]; then
-          echo "[entrypoint] WARNING: Volume changed (${prev_volume} -> ${volume_name}). Database was reset."
-          echo "[entrypoint] Fix: Coolify -> Persistent Storage -> DELETE all entries; use ./data bind only."
+          echo "[entrypoint] WARNING: Volume changed (${prev_volume} -> ${volume_name})."
         fi
       fi
       echo "${volume_name}" > "$volume_id_file"
       ;;
     /)
-      echo "[entrypoint] WARNING: ${data_dir} mounted from disk root — check compose volumes."
+      echo "[entrypoint] WARNING: ${data_dir} mounted from disk root."
       ;;
     *)
-      echo "[entrypoint] Storage: host bind '${mount_root}' -> ${data_dir}"
+      echo "[entrypoint] Storage: bind '${mount_root}' -> ${data_dir}"
       echo "bind:${mount_root}" > "$volume_id_file"
       ;;
   esac
 else
-  echo "[entrypoint] WARNING: ${data_dir} is not mounted — data will not survive redeploy."
-  echo "[entrypoint] docker-compose.yml needs: ./data:/app/data"
-  echo "[entrypoint] And Coolify Persistent Storage must be empty."
+  echo "[entrypoint] FATAL: ${data_dir} not mounted."
+  echo "[entrypoint] On Coolify server run: docker volume create ilhamspace-db"
+  echo "[entrypoint] Compose needs: ilhamspace-db:/data/db (external volume)"
+  exit 1
 fi
 
 if [ -f "$db_path" ]; then
