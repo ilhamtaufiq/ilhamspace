@@ -9,6 +9,7 @@ const en: Record<keyof typeof id, string> = {
   "lang.id": "ID",
   "lang.en": "EN",
   "home.welcome": "Hi! Welcome to {name}.",
+  "home.greeting": "Hi! Welcome to",
   "home.intro":
     "{name} is my personal space on the web — notes, projects, and ideas in one place.",
   "home.tagline": "Notes, projects, and ideas.",

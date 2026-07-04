@@ -36,24 +36,35 @@
 
 <section class="space-y-6">
   <div class="space-y-4">
-    <img
-      src="/logo.jpg"
-      alt={siteConfig.name}
-      width={128}
-      height={128}
-      decoding="async"
-      class="pixel-border image-rendering-pixelated size-28 object-cover sm:size-32"
-    />
+    <div class="pixel-border bg-card p-4 sm:p-5">
+      <div
+        class="flex flex-col items-center gap-4 sm:flex-row sm:items-center sm:gap-6"
+      >
+        <img
+          src="/logo.jpg"
+          alt={siteConfig.name}
+          width={112}
+          height={112}
+          decoding="async"
+          class="pixel-border image-rendering-pixelated size-24 shrink-0 object-cover sm:size-28"
+        />
 
-    <h1 class="type-page-title text-base sm:text-base">
-      {t("home.welcome", { name: siteConfig.name })}
-    </h1>
+        <div class="min-w-0 flex-1 text-center sm:text-left">
+          <p class="type-meta">{t("home.greeting")}</p>
+          <h1
+            class="font-pixel mt-1 text-base uppercase tracking-wide sm:text-lg"
+          >
+            {siteConfig.name}
+          </h1>
+          <p class="type-lead mt-2">{siteConfig.tagline}</p>
+        </div>
+      </div>
+    </div>
 
     <div class="prose-retro">
       <p>
         {t("home.intro", { name: siteConfig.name })}
       </p>
-      <p class="text-muted-foreground">{t("home.tagline")}</p>
     </div>
 
     <div class="flex flex-wrap gap-3 pt-1">
