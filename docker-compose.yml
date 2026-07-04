@@ -1,4 +1,4 @@
-# Persis seperti spm-am. Hapus SEMUA Persistent Storage di Coolify UI.
+# Sama seperti spm-am: ./data:/app/data
 services:
   app:
     build:

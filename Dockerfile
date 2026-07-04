@@ -33,7 +33,6 @@ COPY src/lib/db/schema.ts ./src/lib/db/schema.ts
 
 RUN chmod +x scripts/docker-entrypoint.sh
 
-VOLUME ["/app/data"]
 EXPOSE 3000
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \

@@ -1,105 +1,32 @@
 #!/bin/sh
 set -e
 
-echo "[entrypoint] config=spm-data-bind-v20260704 db=/app/data/ilhamspace.db"
+export DATABASE_PATH="${DATABASE_PATH:-/app/data/ilhamspace.db}"
+db_dir="$(dirname "$DATABASE_PATH")"
+mkdir -p "$db_dir"
 
-if [ "${NODE_ENV:-}" = "production" ]; then
-  export DATABASE_PATH=/app/data/ilhamspace.db
-elif [ -z "${DATABASE_PATH:-}" ]; then
-  export DATABASE_PATH=/app/data/ilhamspace.db
-fi
-
-db_path="$DATABASE_PATH"
-data_dir="$(dirname "$db_path")"
-mkdir -p "$data_dir"
-
-history_file="${data_dir}/.deploy-history"
-deploy_num=1
-if [ -f "$history_file" ]; then
-  deploy_num="$(($(wc -l < "$history_file" | tr -d ' ') + 1))"
-fi
-echo "$(date -Iseconds) deploy #${deploy_num}" >> "$history_file"
-echo "[entrypoint] Deploy #${deploy_num}"
-
-mount_root=""
-if [ -r /proc/self/mountinfo ]; then
-  mount_root="$(awk -v mp="${data_dir}" '$5 == mp { print $4; exit }' /proc/self/mountinfo)"
-fi
-
-if [ -n "${mount_root}" ]; then
-  case "${mount_root}" in
-    *docker/volumes/*/_data)
-      volume_name="$(echo "${mount_root}" | sed 's|.*/docker/volumes/\([^/]*\)/_data|\1|')"
-      echo "[entrypoint] FATAL: hash volume '${volume_name}' on ${data_dir}."
-      echo "[entrypoint] Coolify -> Persistent Storage -> HAPUS SEMUA (ini timpa ./data bind)."
-      exit 1
-      ;;
-    *)
-      echo "[entrypoint] Storage: ${mount_root} -> ${data_dir}"
-      ;;
-  esac
-else
-  echo "[entrypoint] FATAL: ${data_dir} not mounted."
-  exit 1
-fi
-
-if [ -f "$db_path" ]; then
-  db_bytes="$(wc -c < "$db_path" | tr -d ' ')"
-  echo "[entrypoint] Database: ${db_path} (${db_bytes} bytes)"
+db_exists=0
+if [ -f "$DATABASE_PATH" ] && [ -s "$DATABASE_PATH" ]; then
   db_exists=1
+  echo "[entrypoint] Database ready ($(wc -c < "$DATABASE_PATH" | tr -d ' ') bytes)"
 else
-  echo "[entrypoint] First boot — no database at ${db_path} yet."
-  db_exists=0
+  echo "[entrypoint] First boot — creating database"
 fi
 
-run_migrate=0
-case "${RUN_MIGRATIONS:-auto}" in
-  0|false|no|skip)
-    ;;
-  1|true|yes|force)
-    run_migrate=1
-    ;;
-  *)
-    if node --import tsx scripts/check-migrations.ts; then
-      echo "[entrypoint] Schema up to date — database not modified."
-    else
-      run_migrate=1
-    fi
-    ;;
-esac
-
-if [ "$run_migrate" -eq 1 ]; then
-  echo "[entrypoint] Running migrations..."
-  pnpm exec drizzle-kit migrate
-fi
-
-run_admin=0
-case "${ENSURE_ADMIN:-auto}" in
-  0|false|no|skip)
-    ;;
-  1|true|yes|force)
-    run_admin=1
-    export ENSURE_ADMIN_MODE=force
-    ;;
-  *)
-    if [ "$db_exists" -eq 0 ]; then
-      run_admin=1
-      export ENSURE_ADMIN_MODE=create-only
-    elif node --import tsx scripts/has-admin.ts 2>/dev/null; then
-      echo "[entrypoint] Admin exists — database not modified."
-    else
-      run_admin=1
-      export ENSURE_ADMIN_MODE=create-only
-    fi
-    ;;
-esac
-
-if [ "$run_admin" -eq 1 ]; then
-  if [ -n "${ADMIN_EMAIL:-}" ] && { [ -n "${ADMIN_PASSWORD_HASH:-}" ] || [ -n "${ADMIN_PASSWORD:-}" ]; }; then
-    echo "[entrypoint] Ensuring admin user..."
-    node --import tsx scripts/ensure-admin.ts || true
+if [ "${RUN_MIGRATIONS:-auto}" != "0" ] && [ "${RUN_MIGRATIONS:-}" != "false" ]; then
+  if [ "$db_exists" -eq 0 ] || ! node --import tsx scripts/check-migrations.ts 2>/dev/null; then
+    echo "[entrypoint] Running migrations..."
+    pnpm exec drizzle-kit migrate
   fi
 fi
 
-echo "[entrypoint] Starting server on ${HOST:-0.0.0.0}:${PORT:-3000}..."
+if [ "${ENSURE_ADMIN:-auto}" != "0" ] && [ "${ENSURE_ADMIN:-}" != "false" ]; then
+  if [ -n "${ADMIN_EMAIL:-}" ] && { [ -n "${ADMIN_PASSWORD_HASH:-}" ] || [ -n "${ADMIN_PASSWORD:-}" ]; }; then
+    if [ "$db_exists" -eq 0 ] || ! node --import tsx scripts/has-admin.ts 2>/dev/null; then
+      echo "[entrypoint] Ensuring admin user..."
+      node --import tsx scripts/ensure-admin.ts || true
+    fi
+  fi
+fi
+
 exec node --import tsx server.ts
