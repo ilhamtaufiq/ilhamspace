@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 import { scriptClient } from "./db.ts";
 
 const journalPath = resolve("drizzle/meta/_journal.json");
-const dbPath = resolve(process.env.DATABASE_PATH ?? "/app/data/ilhamspace.db");
+const dbPath = resolve(process.env.DATABASE_PATH ?? "/app/persist/ilhamspace.db");
 
 const journal = JSON.parse(readFileSync(journalPath, "utf8")) as {
   entries: { tag: string }[];

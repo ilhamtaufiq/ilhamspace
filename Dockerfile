@@ -15,7 +15,7 @@ FROM node:24-alpine AS production
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV DATABASE_PATH=/app/data/ilhamspace.db
+ENV DATABASE_PATH=/app/persist/ilhamspace.db
 ENV PORT=3000
 ENV HOST=0.0.0.0
 

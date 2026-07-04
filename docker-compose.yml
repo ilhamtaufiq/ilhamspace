@@ -1,4 +1,6 @@
-# Sama seperti spm-am: ./data:/app/data
+# Host ./data sama seperti spm-am. Container pakai /app/persist (bukan /app/data)
+# supaya tidak bentrok dengan Coolify Persistent Storage yang sering di-mount ke
+# /app/data atau /persist dan mengosongkan DB tiap redeploy.
 services:
   app:
     build:
@@ -9,13 +11,13 @@ services:
     expose:
       - 3000
     volumes:
-      - ./data:/app/data
+      - ./data:/app/persist
     environment:
       - NODE_ENV=production
       - PORT=3000
       - HOST=0.0.0.0
       - ORIGIN=${ORIGIN:-https://is.cianjur.space}
-      - DATABASE_PATH=/app/data/ilhamspace.db
+      - DATABASE_PATH=/app/persist/ilhamspace.db
       - SESSION_SECRET=${SESSION_SECRET:?Set SESSION_SECRET}
       - ADMIN_EMAIL=${ADMIN_EMAIL:-}
       - ADMIN_NAME=${ADMIN_NAME:-Admin}
