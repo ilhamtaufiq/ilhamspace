@@ -41,11 +41,13 @@
         aria-label={siteConfig.name}
       >
         <img
-          src="/logo.jpg"
+          src="/logo.svg"
           alt=""
           width={32}
           height={32}
-          class="pixel-border image-rendering-pixelated size-8 object-cover"
+          fetchpriority="high"
+          decoding="async"
+          class="pixel-border image-rendering-pixelated size-8 object-contain"
         />
         <span class="font-pixel hidden text-[10px] uppercase sm:inline sm:text-xs">
           {siteConfig.name}

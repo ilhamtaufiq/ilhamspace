@@ -19,13 +19,16 @@
 </script>
 
 <svelte:head>
-  <link rel="icon" href="/logo.jpg" type="image/jpeg" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link
     rel="alternate"
     type="application/rss+xml"
     title="{siteConfig.name} RSS"
     href="/feed.xml"
   />
+  {#if data.umami.enabled && data.umami.scriptUrl}
+    <link rel="dns-prefetch" href={new URL(data.umami.scriptUrl).origin} />
+  {/if}
 </svelte:head>
 
 {#if data.umami.enabled && data.umami.scriptUrl && data.umami.websiteId}

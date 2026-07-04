@@ -4,6 +4,7 @@ import { SESSION_COOKIE } from "$lib/auth/constants";
 import { getUserFromSession } from "$lib/auth/session";
 import { LOCALE_COOKIE } from "$lib/i18n/constants";
 import { parseLocale } from "$lib/i18n";
+import { applyCacheHeaders } from "$lib/server/cache-headers";
 
 import type { Handle } from "@sveltejs/kit";
 
@@ -18,5 +19,11 @@ export const handle: Handle = async ({ event, resolve }) => {
     throw redirect(303, "/login");
   }
 
-  return resolve(event);
+  const response = await resolve(event, {
+    preload: ({ type }) => type === "font" || type === "js" || type === "css",
+  });
+
+  applyCacheHeaders(pathname, response.headers);
+
+  return response;
 };

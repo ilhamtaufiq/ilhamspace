@@ -39,8 +39,10 @@
 </script>
 
 <span
-  class={views === null ? "motion-safe:animate-pulse" : "opacity-70"}
+  class="inline-block min-w-[1.75rem] text-right tabular-nums {views === null
+    ? 'opacity-50'
+    : 'opacity-70'}"
   title={unavailable ? t("stats.viewsUnavailable") : t("stats.views")}
 >
-  {views === null ? "0" : formatStatCount(views)}
+  {views === null ? "—" : formatStatCount(views)}
 </span>

@@ -15,6 +15,7 @@ import { broadcastVoteUpdate } from "$lib/server/broadcast-vote";
 import { getPostBySlug } from "$lib/db/posts";
 import { translate } from "$lib/i18n";
 import { commentSchema, voteSchema } from "$lib/schemas/comment";
+import { optimizeContentHtmlImages } from "$lib/seo/content-html";
 import {
   extractFirstImageFromHtml,
   stripHtml,
@@ -57,7 +58,10 @@ export const load: PageServerLoad = async ({
   ]);
 
   return {
-    post,
+    post: {
+      ...post,
+      contentHtml: optimizeContentHtmlImages(post.contentHtml),
+    },
     canEdit: locals.user?.isAdmin ?? false,
     seoDescription,
     seoImage,

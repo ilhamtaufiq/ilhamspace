@@ -38,26 +38,19 @@
   });
 </script>
 
-{#if !loaded}
-  <span
-    class="font-retro inline-block h-5 w-14 animate-pulse pixel-border bg-muted/40 align-middle"
-    aria-hidden="true"
-  ></span>
-  <span
-    class="font-retro ml-1 inline-block h-5 w-12 animate-pulse pixel-border bg-muted/40 align-middle"
-    aria-hidden="true"
-  ></span>
-{:else}
-  <Badge
-    title={viewsUnavailable ? t("stats.viewsUnavailable") : t("stats.views")}
-    class="opacity-80"
-  >
-    <IconEye class="size-3.5 shrink-0 opacity-65" aria-hidden="true" />
-    {formatStatCount(views ?? 0)}
-  </Badge>
+<Badge
+  title={loaded && viewsUnavailable ? t("stats.viewsUnavailable") : t("stats.views")}
+  class="min-w-[3.25rem] justify-center opacity-80 tabular-nums"
+>
+  <IconEye class="size-3.5 shrink-0 opacity-65" aria-hidden="true" />
+  {loaded ? formatStatCount(views ?? 0) : "—"}
+</Badge>
 
-  <Badge href="/{slug}#comments" title={t("stats.comments")} class="ml-1 opacity-80">
-    <IconMessages class="size-3.5 shrink-0 opacity-65" aria-hidden="true" />
-    {formatStatCount(commentCount)}
-  </Badge>
-{/if}
+<Badge
+  href="/{slug}#comments"
+  title={t("stats.comments")}
+  class="ml-1 min-w-[3rem] justify-center opacity-80 tabular-nums"
+>
+  <IconMessages class="size-3.5 shrink-0 opacity-65" aria-hidden="true" />
+  {formatStatCount(commentCount)}
+</Badge>

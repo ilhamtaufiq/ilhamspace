@@ -1,7 +1,28 @@
 @import "tailwindcss";
-@import "@fontsource/press-start-2p/400.css";
-@import "@fontsource/vt323/400.css";
-@import "@fontsource/jetbrains-mono/400.css";
+
+@font-face {
+  font-family: "VT323";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("/fonts/vt323-latin-400-normal.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Press Start 2P";
+  font-style: normal;
+  font-display: swap;
+  font-weight: 400;
+  src: url("/fonts/press-start-2p-latin-400-normal.woff2") format("woff2");
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC,
+    U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193,
+    U+2212, U+2215, U+FEFF, U+FFFD;
+}
 
 @custom-variant dark (&:where(.dark *));
 
@@ -333,7 +354,7 @@
     }
 
     & img {
-      @apply my-5 max-w-full;
+      @apply my-5 h-auto max-w-full;
       border: 2px solid var(--border);
       box-shadow: 2px 2px 0 0 var(--border);
     }
