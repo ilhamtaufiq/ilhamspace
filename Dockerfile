@@ -4,7 +4,7 @@ WORKDIR /app
 
 RUN corepack enable && corepack prepare pnpm@11.9.0 --activate
 
-COPY package.json pnpm-lock.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .
@@ -21,10 +21,8 @@ ENV HOST=0.0.0.0
 
 RUN corepack enable && corepack prepare pnpm@11.9.0 --activate
 
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install --frozen-lockfile --prod \
-  && pnpm add tsx drizzle-kit
-
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/build ./build
 COPY server.ts ./
 COPY server ./server
