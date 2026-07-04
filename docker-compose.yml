@@ -1,6 +1,6 @@
-# Coolify: Build Pack = Docker Compose (recommended).
-# Volume ilhamspace-data persists SQLite at /data/ilhamspace.db across redeploys.
-# Do NOT add host disk / bind storage for /data.
+# Coolify: Build Pack = Docker Compose.
+# IMPORTANT: In Coolify UI, remove ALL "Persistent Storage" entries for /data.
+# This file already defines ilhamspace-data:/data — extra Coolify storage breaks deploy.
 services:
   ilhamspace:
     build: .

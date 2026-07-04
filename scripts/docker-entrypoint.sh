@@ -20,28 +20,26 @@ fi
 echo "$(date -Iseconds) deploy #${deploy_num}" >> "$history_file"
 echo "[entrypoint] Deploy #${deploy_num} (history: ${history_file})"
 
-if grep -qE "[[:space:]]${data_dir}[[:space:]]" /proc/mounts 2>/dev/null; then
-  mount_src="$(grep -E "[[:space:]]${data_dir}[[:space:]]" /proc/mounts | awk '{print $1}' | head -n1)"
-  case "$mount_src" in
-    /dev/sda2|/dev/sda*)
-      echo "[entrypoint] FATAL: ${data_dir} is mounted from host disk ${mount_src}."
-      echo "[entrypoint] Remove that Coolify Persistent Storage entry completely."
-      echo "[entrypoint] Deploy with docker-compose.yml (ilhamspace-data:/data) or a Docker named volume on /data."
-      exit 1
-      ;;
-    /dev/*)
-      echo "[entrypoint] FATAL: ${data_dir} uses block device ${mount_src} — not allowed."
-      echo "[entrypoint] Use a Docker named volume on /data instead of a host disk bind."
-      exit 1
+mount_root=""
+if [ -r /proc/self/mountinfo ]; then
+  mount_root="$(awk -v mp="${data_dir}" '$5 == mp { print $4; exit }' /proc/self/mountinfo)"
+fi
+
+if [ -n "${mount_root}" ]; then
+  case "${mount_root}" in
+    *docker/volumes*)
+      echo "[entrypoint] Docker volume: ${mount_root} -> ${data_dir}"
       ;;
     *)
-      echo "[entrypoint] Data volume: ${mount_src} -> ${data_dir}"
+      echo "[entrypoint] FATAL: ${data_dir} is a host bind (${mount_root}), not a Docker named volume."
+      echo "[entrypoint] Coolify -> Persistent Storage -> DELETE every /data entry (including /dev/sda2)."
+      echo "[entrypoint] docker-compose.yml already mounts ilhamspace-data:/data — do not add extra storage."
+      exit 1
       ;;
   esac
 else
   echo "[entrypoint] FATAL: ${data_dir} is not mounted."
-  echo "[entrypoint] Coolify -> Persistent Storage -> Destination Path /data (Docker volume only)."
-  echo "[entrypoint] Or deploy via docker-compose.yml (ilhamspace-data:/data)."
+  echo "[entrypoint] Use Docker Compose build pack; volume ilhamspace-data:/data is required."
   if [ "${NODE_ENV:-}" = "production" ]; then
     exit 1
   fi
