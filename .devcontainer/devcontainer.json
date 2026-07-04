@@ -1,0 +1,22 @@
+{
+  "name": "ilhamspace",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:24-bookworm",
+  "postCreateCommand": "corepack enable && CI=true pnpm install",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "extensions.ignoreRecommendations": true,
+        "telemetry.telemetryLevel": "off",
+        "typescript.tsdk": "node_modules/typescript/lib"
+      },
+      "extensions": [
+        "bradlc.vscode-tailwindcss",
+        "svelte.svelte-vscode"
+      ]
+    }
+  },
+  "forwardPorts": [5173],
+  "containerEnv": {
+    "COREPACK_ENABLE_DOWNLOAD_PROMPT": "0"
+  }
+}

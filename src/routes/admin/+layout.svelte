@@ -1,0 +1,19 @@
+<script lang="ts">
+  import AdminNav from "$lib/components/layout/admin-nav.svelte";
+  import { siteConfig } from "$lib/config/site";
+
+  let { children } = $props();
+</script>
+
+<svelte:head>
+  <title>Admin · {siteConfig.name}</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+</svelte:head>
+
+<div class="admin-shell bg-muted/20 -mx-4 space-y-8 px-4 py-4">
+  <AdminNav />
+  <main class="w-full">
+    {@render children()}
+  </main>
+</div>
