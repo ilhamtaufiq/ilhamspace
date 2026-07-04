@@ -3,9 +3,9 @@ set -e
 
 # Production always uses the Docker volume path — never ./data inside the image.
 if [ "${NODE_ENV:-}" = "production" ]; then
-  export DATABASE_PATH=/data/ilhamspace.db
+  export DATABASE_PATH=/app/data/ilhamspace.db
 elif [ -z "${DATABASE_PATH:-}" ]; then
-  export DATABASE_PATH=/data/ilhamspace.db
+  export DATABASE_PATH=/app/data/ilhamspace.db
 fi
 
 db_path="$DATABASE_PATH"
@@ -31,7 +31,7 @@ if [ -n "${mount_root}" ]; then
       echo "[entrypoint] Docker volume: ${mount_root} -> ${data_dir}"
       ;;
     /)
-      echo "[entrypoint] FATAL: ${data_dir} is mounted from disk root — use ./data:/data in compose."
+      echo "[entrypoint] FATAL: ${data_dir} is mounted from disk root — use ./data:/app/data in compose."
       exit 1
       ;;
     *)
@@ -40,7 +40,7 @@ if [ -n "${mount_root}" ]; then
   esac
 else
   echo "[entrypoint] FATAL: ${data_dir} is not mounted."
-  echo "[entrypoint] docker-compose.yml must include: ./data:/data"
+  echo "[entrypoint] docker-compose.yml must include: ./data:/app/data"
   if [ "${NODE_ENV:-}" = "production" ]; then
     exit 1
   fi
