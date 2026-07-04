@@ -2,14 +2,13 @@ services:
   app:
     build:
       context: .
-      dockerfile: Dockerfile
       args:
         - COOLIFY_URL=${COOLIFY_URL:-}
         - COOLIFY_FQDN=${COOLIFY_FQDN:-}
     expose:
       - 3000
     volumes:
-      - /data/coolify/applications/diwpciiw0oaieuvly0q8yb1d/data:/app/persist
+      - ./data:/app/data
     environment:
       - NODE_ENV=production
       - PORT=3000

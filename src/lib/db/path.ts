@@ -3,7 +3,7 @@ import { dirname, resolve } from "node:path";
 
 export const getDatabasePath = (): string => {
   if (process.env.NODE_ENV === "production") {
-    return "/app/persist/ilhamspace.db";
+    return "/app/data/ilhamspace.db";
   }
   return resolve(process.env.DATABASE_PATH ?? "./data/ilhamspace.db");
 };

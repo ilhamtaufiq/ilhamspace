@@ -1,28 +1,25 @@
 #!/bin/sh
 set -e
 
-export DATABASE_PATH="/app/persist/ilhamspace.db"
-mkdir -p /app/persist
+export DATABASE_PATH="/app/data/ilhamspace.db"
+mkdir -p /app/data
 
-mount_root="$(awk -v mp="/app/persist" '$5 == mp { print $4; exit }' /proc/self/mountinfo 2>/dev/null || true)"
+mount_root="$(awk -v mp="/app/data" '$5 == mp { print $4; exit }' /proc/self/mountinfo 2>/dev/null || true)"
 if [ -n "$mount_root" ] && [ "$mount_root" != "/" ]; then
-  echo "[entrypoint] Storage mounted: $mount_root"
+  echo "[entrypoint] Storage: $mount_root"
 else
-  echo "[entrypoint] WARN: ./data tidak ter-mount — set Build Pack ke Docker Compose"
+  echo "[entrypoint] WARN: /app/data not mounted"
 fi
 
-deploy_ts="$(date -Iseconds 2>/dev/null || date)"
-echo "$deploy_ts" >> /app/persist/.deploy-history
-deploy_n="$(wc -l < /app/persist/.deploy-history | tr -d ' ')"
-echo "[entrypoint] Deploy #$deploy_n"
-
-if [ -f "$DATABASE_PATH" ] && [ -s "$DATABASE_PATH" ]; then
-  echo "[entrypoint] Database ready ($(wc -c < "$DATABASE_PATH" | tr -d ' ') bytes)"
-else
-  echo "[entrypoint] First boot — creating database"
-  if [ -f /app/seed/ilhamspace.db ] && [ -s /app/seed/ilhamspace.db ]; then
-    cp /app/seed/ilhamspace.db "$DATABASE_PATH"
+if [ ! -f "$DATABASE_PATH" ] || [ ! -s "$DATABASE_PATH" ]; then
+  if [ -f /app/ilhamspace.db ] && [ -s /app/ilhamspace.db ]; then
+    cp /app/ilhamspace.db "$DATABASE_PATH"
+    echo "[entrypoint] Seeded database from image"
+  else
+    echo "[entrypoint] First boot — creating database"
   fi
+elif [ -f "$DATABASE_PATH" ] && [ -s "$DATABASE_PATH" ]; then
+  echo "[entrypoint] Database ready ($(wc -c < "$DATABASE_PATH" | tr -d ' ') bytes)"
 fi
 
 if ! node --import tsx scripts/check-migrations.ts 2>/dev/null; then
