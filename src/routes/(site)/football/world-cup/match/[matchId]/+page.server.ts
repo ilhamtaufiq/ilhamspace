@@ -32,9 +32,6 @@ export const load: PageServerLoad = async ({ params, locals, setHeaders }) => {
   }
 
   const matchId = parsed.data;
-  setHeaders({
-    "cache-control": "public, max-age=120, stale-while-revalidate=300",
-  });
 
   try {
     const [details, playerStats, chatMessages, commentsRaw] =
@@ -48,6 +45,13 @@ export const load: PageServerLoad = async ({ params, locals, setHeaders }) => {
       ]);
 
     const match = mapMatchDetail(details, playerStats, locals.locale);
+
+    setHeaders({
+      "cache-control": match.isLive
+        ? "private, no-cache, no-store, must-revalidate"
+        : "private, max-age=120, must-revalidate",
+      vary: "Cookie",
+    });
     const commentary = mapMatchCommentary(commentsRaw);
     const matchFacts = mapMatchFactsEvents(details);
     const playByPlay = mapMatchActionPlayByPlay(details, commentsRaw);

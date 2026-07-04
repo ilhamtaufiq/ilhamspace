@@ -7,7 +7,7 @@
     type MatchShareInput,
   } from "$lib/football/match-share";
   import { getLocaleContext } from "$lib/i18n/context";
-  import { buildCanonicalUrl } from "$lib/seo/meta";
+  import { buildCanonicalUrl, buildMatchSharePagePath } from "$lib/seo/meta";
   import { cn } from "$lib/utils";
 
   type Props = {
@@ -24,9 +24,13 @@
   const message = $derived(buildMatchShareMessage(locale, share));
 
   const pageUrl = $derived(
-    browser
-      ? window.location.href
-      : buildCanonicalUrl(`/football/world-cup/match/${matchId}`),
+    buildCanonicalUrl(
+      buildMatchSharePagePath(matchId, {
+        homeScore: share.homeScore,
+        awayScore: share.awayScore,
+        statusShort: share.statusShort,
+      }),
+    ),
   );
 
   const shareTitle = $derived(`${share.homeName} vs ${share.awayName}`);

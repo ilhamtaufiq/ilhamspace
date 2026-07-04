@@ -67,6 +67,7 @@ export type KnockoutMatchupView = {
   awayTeamId?: number;
   score: string;
   statusLabel: string;
+  kickoffUtc?: string;
   winnerTeamId?: number;
   matchId?: number;
   isTbd: boolean;
@@ -307,4 +308,18 @@ export type MatchDetailView = {
   h2h?: MatchH2HRecord;
   momentum: MatchMomentumPoint[];
   shots: MatchShotView[];
+};
+
+export type MatchAudioLang = "ENG" | "ESP" | "FRA" | "GER" | "ITA" | "POR";
+
+export type MatchAudioStreamView = {
+  lang: MatchAudioLang;
+  streamUrl: string;
+};
+
+export type MatchAudioView = {
+  available: boolean;
+  languages: MatchAudioLang[];
+  streams: MatchAudioStreamView[];
+  defaultLang: MatchAudioLang;
 };

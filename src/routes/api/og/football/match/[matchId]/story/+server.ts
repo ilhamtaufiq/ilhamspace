@@ -5,9 +5,12 @@ import { mapMatchDetail } from "$lib/fotmob/match-analysis";
 import {
   buildMatchOgStatusLabel,
   buildMatchOgTimeLabel,
-  renderMatchOgImage,
 } from "$lib/server/og/match-score-card";
-import { getMatchDetails } from "$lib/server/fotmob";
+import {
+  buildMatchStoryCardInput,
+  renderMatchStoryImage,
+} from "$lib/server/og/match-story-card";
+import { fetchFotmobOptional, getMatchDetails } from "$lib/server/fotmob";
 
 import type { RequestHandler } from "./$types";
 
@@ -26,36 +29,31 @@ export const GET: RequestHandler = async ({ params, setHeaders }) => {
     error(503, "Match data unavailable");
   }
 
-  const match = mapMatchDetail(details, null, "en");
-  const timeLabel = buildMatchOgTimeLabel({
-    isLive: match.isLive,
-    isFinished: match.isFinished,
-    matchMinute: match.matchMinute,
-    statusShort: match.statusShort,
-  });
-  const statusLabel = buildMatchOgStatusLabel({
-    statusLong: match.statusLong,
-    statusShort: match.statusShort,
-    isLive: match.isLive,
-    isFinished: match.isFinished,
+  const playerStats = await fetchFotmobOptional<Record<string, unknown>>(
+    `/matches/${parsed.data}/player-stats`,
+  );
+
+  const match = mapMatchDetail(details, playerStats, "en");
+  const storyInput = buildMatchStoryCardInput(match, {
+    timeLabel: buildMatchOgTimeLabel({
+      isLive: match.isLive,
+      isFinished: match.isFinished,
+      matchMinute: match.matchMinute,
+      statusShort: match.statusShort,
+    }),
+    statusLabel: buildMatchOgStatusLabel({
+      statusLong: match.statusLong,
+      statusShort: match.statusShort,
+      isLive: match.isLive,
+      isFinished: match.isFinished,
+    }),
   });
 
-  const png = await renderMatchOgImage({
-    homeName: match.home.name,
-    awayName: match.away.name,
-    homeScore: match.home.score,
-    awayScore: match.away.score,
-    homeTeamId: match.home.id,
-    awayTeamId: match.away.id,
-    homeFifaRank: match.home.fifaRank,
-    awayFifaRank: match.away.fifaRank,
-    timeLabel,
-    statusLabel,
-    isLive: match.isLive,
-  });
+  const png = await renderMatchStoryImage(storyInput);
 
   setHeaders({
     "content-type": "image/png",
+    "content-disposition": `inline; filename="ilhamspace-match-${parsed.data}-story.png"`,
     "cache-control": match.isLive
       ? "private, no-cache, no-store, must-revalidate"
       : "public, max-age=86400, immutable",

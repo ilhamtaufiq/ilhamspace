@@ -6,7 +6,8 @@ import type { PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async ({ locals, setHeaders }) => {
   setHeaders({
-    "cache-control": "public, max-age=300, stale-while-revalidate=600",
+    "cache-control": "private, max-age=60, must-revalidate",
+    vary: "Cookie",
   });
 
   try {

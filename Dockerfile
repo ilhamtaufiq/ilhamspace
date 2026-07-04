@@ -8,6 +8,8 @@ COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .
+ARG BUILD_ID=dev
+ENV BUILD_ID=${BUILD_ID}
 RUN pnpm build
 
 FROM node:24-alpine AS production

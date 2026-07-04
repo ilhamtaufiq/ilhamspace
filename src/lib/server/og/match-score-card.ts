@@ -204,10 +204,14 @@ export const renderMatchOgImage = async (
 
 export const buildMatchOgTimeLabel = (input: {
   isLive: boolean;
+  isFinished: boolean;
   matchMinute: string;
   statusShort: string;
 }): string => {
-  if (input.matchMinute) {
+  if (input.isFinished) {
+    return input.statusShort || "FT";
+  }
+  if (input.isLive && input.matchMinute) {
     return input.matchMinute;
   }
   if (input.isLive) {

@@ -3,6 +3,7 @@
 
   import MatchEvents from "$lib/components/football/match-events.svelte";
   import MatchFormationPitch from "$lib/components/football/match-formation-pitch.svelte";
+  import MatchAudioCommentary from "$lib/components/football/match-audio-commentary.svelte";
   import MatchLiveCommentary from "$lib/components/football/match-live-commentary.svelte";
   import MatchEventTimeline from "$lib/components/football/match-event-timeline.svelte";
   import MatchPlayByPlayFeed from "$lib/components/football/match-playbyplay-feed.svelte";
@@ -15,6 +16,7 @@
   import MatchPlayerRatings from "$lib/components/football/match-player-ratings.svelte";
   import MatchShotmap from "$lib/components/football/match-shotmap.svelte";
   import MatchShareButton from "$lib/components/football/match-share-button.svelte";
+  import MatchStoryButton from "$lib/components/football/match-story-button.svelte";
   import MatchStatsPanel from "$lib/components/football/match-stats-panel.svelte";
   import PageTitle from "$lib/components/layout/page-title.svelte";
   import HeadMeta from "$lib/components/seo/head-meta.svelte";
@@ -25,6 +27,7 @@
   import {
     buildMatchInsightsSummary,
     buildMatchOgImagePath,
+    type MatchOgSnapshot,
     buildMatchShareTitle,
     buildPageTitle,
   } from "$lib/seo/meta";
@@ -82,6 +85,12 @@
     `${match.home.name} ${match.home.score} - ${match.away.score} ${match.away.name}`,
   );
 
+  const ogSnapshot = $derived({
+    homeScore: match.home.score,
+    awayScore: match.away.score,
+    statusShort: match.statusShort,
+  } satisfies MatchOgSnapshot);
+
   const shareInput = $derived({
     homeName: match.home.name,
     awayName: match.away.name,
@@ -102,7 +111,7 @@
   title={buildPageTitle(`${shareTitle} — ${t("seo.worldCupTitle")}`)}
   description={shareDescription}
   path="/football/world-cup/match/{match.matchId}"
-  image={buildMatchOgImagePath(match.matchId)}
+  image={buildMatchOgImagePath(match.matchId, ogSnapshot)}
   imageAlt={ogImageAlt}
   imageWidth={1200}
   imageHeight={630}
@@ -180,8 +189,13 @@
     </div>
   </div>
 
-  <div class="mt-4 flex justify-center">
+  <div class="mt-4 flex flex-wrap items-start justify-center gap-4">
     <MatchShareButton matchId={match.matchId} share={shareInput} />
+    <MatchStoryButton
+      matchId={match.matchId}
+      share={shareInput}
+      snapshot={ogSnapshot}
+    />
   </div>
 </section>
 
@@ -213,6 +227,8 @@
   playerStatsById={match.playerStatsById}
   isLive={match.isLive}
 />
+
+<MatchAudioCommentary matchId={match.matchId} isLive={match.isLive} />
 
 <MatchLiveCommentary
   matchId={match.matchId}

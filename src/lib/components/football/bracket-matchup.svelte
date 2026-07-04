@@ -1,4 +1,8 @@
 <script lang="ts">
+  import {
+    formatFootballKickoff,
+    formatFootballShortDateTime,
+  } from "$lib/football/datetime";
   import { FOTMOB_TEAM_LOGO } from "$lib/fotmob/constants";
   import type { KnockoutMatchupView } from "$lib/fotmob/types";
   import { cn } from "$lib/utils";
@@ -22,6 +26,24 @@
     }
     return teamId === winnerId ? "text-[var(--ring)] font-bold" : "opacity-55";
   };
+
+  const kickoffLabel = $derived(
+    matchup.kickoffUtc
+      ? compact
+        ? formatFootballShortDateTime(matchup.kickoffUtc, locale)
+        : formatFootballKickoff(matchup.kickoffUtc, locale)
+      : "",
+  );
+
+  const statusText = $derived(
+    matchup.isLive
+      ? "LIVE"
+      : matchup.statusLabel || kickoffLabel || (matchup.isTbd
+          ? locale === "id"
+            ? "Menunggu"
+            : "TBD"
+          : ""),
+  );
 </script>
 
 <svelte:element
@@ -39,10 +61,8 @@
       <span class="font-pixel text-muted-foreground text-[8px] uppercase">
         {#if matchup.isLive}
           <span class="text-[var(--destructive)]">● LIVE</span>
-        {:else if matchup.statusLabel}
-          {matchup.statusLabel}
-        {:else if matchup.isTbd}
-          {locale === "id" ? "Menunggu" : "TBD"}
+        {:else if statusText}
+          {statusText}
         {/if}
       </span>
       <span class="font-pixel text-[10px]">{matchup.score}</span>
@@ -98,8 +118,10 @@
       <span class="font-pixel text-muted-foreground text-[7px] uppercase">
         {#if matchup.isLive}
           <span class="text-[var(--destructive)]">LIVE</span>
+        {:else if statusText}
+          {statusText}
         {:else}
-          {matchup.statusLabel || matchup.score}
+          {matchup.score}
         {/if}
       </span>
       <span class="font-pixel text-[8px] tabular-nums">{matchup.score}</span>

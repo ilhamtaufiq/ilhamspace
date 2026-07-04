@@ -69,3 +69,19 @@ export const getMatchComments = async (
     `/matches/${matchId}/comments`,
   );
 };
+
+export const getMatchAudio = async (
+  matchId: number,
+): Promise<Record<string, unknown> | null> => {
+  return fetchFotmobOptional<Record<string, unknown>>(
+    `/audio/matches/${matchId}`,
+  );
+};
+
+export const fetchFotmobStream = async (
+  path: string,
+  init?: RequestInit,
+): Promise<Response> => {
+  const url = `${getFotmobApiUrl()}${path}`;
+  return fetch(url, init);
+};

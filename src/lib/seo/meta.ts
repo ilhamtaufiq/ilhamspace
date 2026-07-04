@@ -48,8 +48,50 @@ export const buildDefaultOgImageUrl = (): string =>
 export const resolveOgImageUrl = (image?: string | null): string =>
   image?.trim() ? buildAbsoluteUrl(image) : buildDefaultOgImageUrl();
 
-export const buildMatchOgImagePath = (matchId: number): string =>
-  `/api/og/football/match/${matchId}`;
+export type MatchOgSnapshot = {
+  homeScore: number;
+  awayScore: number;
+  statusShort: string;
+};
+
+const encodeOgStatus = (status: string): string =>
+  encodeURIComponent(status.trim().toUpperCase() || "—");
+
+/** Cache-bust OG image URL so social crawlers fetch fresh score/status. */
+export const buildMatchOgImagePath = (
+  matchId: number,
+  snapshot: MatchOgSnapshot,
+): string => {
+  const status = encodeOgStatus(snapshot.statusShort);
+  return (
+    `/api/og/football/match/${matchId}` +
+    `?h=${snapshot.homeScore}&a=${snapshot.awayScore}&s=${status}`
+  );
+};
+
+/** Vertical 9:16 story image for WhatsApp / Instagram / Facebook stories. */
+export const buildMatchStoryImagePath = (
+  matchId: number,
+  snapshot: MatchOgSnapshot,
+): string => {
+  const status = encodeOgStatus(snapshot.statusShort);
+  return (
+    `/api/og/football/match/${matchId}/story` +
+    `?h=${snapshot.homeScore}&a=${snapshot.awayScore}&s=${status}`
+  );
+};
+
+/** Share URL variant that busts cached HTML previews on social platforms. */
+export const buildMatchSharePagePath = (
+  matchId: number,
+  snapshot: MatchOgSnapshot,
+): string => {
+  const status = encodeOgStatus(snapshot.statusShort);
+  return (
+    `/football/world-cup/match/${matchId}` +
+    `?sk=${snapshot.homeScore}-${snapshot.awayScore}-${status}`
+  );
+};
 
 export const buildMatchInsightsSummary = (
   insights: string[],

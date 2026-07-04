@@ -1,10 +1,33 @@
 <script lang="ts">
   import "../app.css";
 
-  import { onNavigate } from "$app/navigation";
+  import { onMount } from "svelte";
+
+  import { beforeNavigate, onNavigate } from "$app/navigation";
+  import { updated } from "$app/state";
   import { getTransitionType } from "$lib/navigation/transitions";
 
   let { children } = $props();
+
+  beforeNavigate(({ willUnload, to }) => {
+    if (updated.current && !willUnload && to?.url) {
+      location.href = to.url.href;
+    }
+  });
+
+  onMount(() => {
+    const refreshBuild = () => {
+      void updated.check();
+    };
+
+    window.addEventListener("focus", refreshBuild);
+    document.addEventListener("visibilitychange", refreshBuild);
+
+    return () => {
+      window.removeEventListener("focus", refreshBuild);
+      document.removeEventListener("visibilitychange", refreshBuild);
+    };
+  });
 
   onNavigate((navigation) => {
     const startViewTransition = document.startViewTransition;

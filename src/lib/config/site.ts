@@ -1,5 +1,6 @@
 export const siteConfig = {
   name: "ilhamspace",
+  publicDomain: "is.cianjur.space",
   tagline: "Notes, projects, and ideas.",
   description:
     "ilhamspace — a personal site for notes, projects, and ideas.",
