@@ -148,6 +148,8 @@ const en: Record<keyof typeof id, string> = {
   "football.playByPlayKind.injury": "Injury",
   "football.playByPlayKind.comment": "Commentary",
   "football.playByPlayKind.summary": "Summary",
+  "football.playerDetailClose": "Close player stats",
+  "football.playerDetailNoStats": "Player stats are not available yet.",
 };
 
 export default en;

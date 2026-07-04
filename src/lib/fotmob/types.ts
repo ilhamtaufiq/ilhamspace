@@ -159,6 +159,31 @@ export type MatchPlayerRating = {
   minutes: number;
 };
 
+export type MatchPlayerStatItem = {
+  key: string;
+  label: string;
+  value: string;
+};
+
+export type MatchPlayerStatGroup = {
+  key: string;
+  title: string;
+  items: MatchPlayerStatItem[];
+};
+
+export type MatchPlayerDetail = {
+  id: number;
+  name: string;
+  teamId: number;
+  teamName: string;
+  shirtNumber: string;
+  isGoalkeeper?: boolean;
+  groups: MatchPlayerStatGroup[];
+  hasStats: boolean;
+};
+
+export type MatchPlayerStatsIndex = Record<number, MatchPlayerDetail>;
+
 export type MatchH2HRecord = {
   homeWins: number;
   draws: number;
@@ -263,6 +288,7 @@ export type MatchDetailView = {
   homeLineup?: MatchLineupView;
   awayLineup?: MatchLineupView;
   topPlayers: MatchPlayerRating[];
+  playerStatsById: MatchPlayerStatsIndex;
   h2h?: MatchH2HRecord;
   momentum: MatchMomentumPoint[];
   shots: MatchShotView[];

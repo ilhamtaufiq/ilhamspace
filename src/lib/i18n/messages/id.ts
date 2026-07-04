@@ -147,6 +147,8 @@ const id = {
   "football.playByPlayKind.injury": "Cedera",
   "football.playByPlayKind.comment": "Komentar",
   "football.playByPlayKind.summary": "Ringkasan",
+  "football.playerDetailClose": "Tutup statistik pemain",
+  "football.playerDetailNoStats": "Statistik pemain belum tersedia.",
 } as const;
 
 export default id;

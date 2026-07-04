@@ -1,11 +1,11 @@
 import { readFileSync } from "node:fs";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { join } from "node:path";
 
+import opentype, { type Font } from "opentype.js";
 import sharp from "sharp";
 
-import { FOTMOB_TEAM_LOGO } from "$lib/fotmob/constants";
 import { siteConfig } from "$lib/config/site";
+import { FOTMOB_TEAM_LOGO } from "$lib/fotmob/constants";
 
 export type MatchOgCardInput = {
   homeName: string;
@@ -14,45 +14,85 @@ export type MatchOgCardInput = {
   awayScore: number;
   homeTeamId: number;
   awayTeamId: number;
+  homeFifaRank?: number;
+  awayFifaRank?: number;
   statusLabel: string;
-  roundLabel: string;
+  timeLabel: string;
   isLive: boolean;
-  competitionLabel?: string;
 };
 
 const OG_WIDTH = 1200;
 const OG_HEIGHT = 630;
 
-const escapeXml = (value: string): string =>
-  value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
+const COLORS = {
+  background: "#0D0D0D",
+  score: "#FFB000",
+  team: "#FFB000",
+  fifa: "#CC8C00",
+  live: "#FF6B9D",
+  status: "#CC8C00",
+  brand: "#39FF14",
+  logoFallback: "#1A1A1A",
+  logoBorder: "#FFB000",
+} as const;
 
-const truncateName = (name: string, max = 16): string => {
-  const trimmed = name.trim();
-  if (trimmed.length <= max) {
-    return trimmed;
+let cachedFont: Font | null = null;
+
+const loadPixelFont = (): Font => {
+  if (cachedFont) {
+    return cachedFont;
   }
-  return `${trimmed.slice(0, max - 1)}…`;
-};
 
-const loadPixelFontBase64 = (): string | null => {
-  try {
-    const root = join(dirname(fileURLToPath(import.meta.url)), "../../../..");
-    const fontPath = join(
-      root,
+  const candidates = [
+    join(
+      process.cwd(),
+      "node_modules/@fontsource/press-start-2p/files/press-start-2p-latin-400-normal.woff",
+    ),
+    join(
+      process.cwd(),
       "node_modules/@fontsource/press-start-2p/files/press-start-2p-latin-400-normal.woff2",
-    );
-    return readFileSync(fontPath).toString("base64");
-  } catch {
-    return null;
+    ),
+  ];
+
+  for (const fontPath of candidates) {
+    try {
+      cachedFont = opentype.parse(readFileSync(fontPath));
+      return cachedFont;
+    } catch {
+      continue;
+    }
   }
+
+  throw new Error("Press Start 2P font not found for OG image rendering");
 };
 
-const fetchImageDataUrl = async (url: string): Promise<string | null> => {
+const truncateName = (name: string, max = 14): string => {
+  const upper = name.trim().toUpperCase();
+  if (upper.length <= max) {
+    return upper;
+  }
+  return `${upper.slice(0, max - 1)}…`;
+};
+
+const textWidth = (font: Font, text: string, size: number): number =>
+  font.getAdvanceWidth(text, size);
+
+const textPath = (
+  font: Font,
+  text: string,
+  x: number,
+  y: number,
+  size: number,
+  fill: string,
+  anchor: "start" | "middle" = "start",
+): string => {
+  const resolvedX =
+    anchor === "middle" ? x - textWidth(font, text, size) / 2 : x;
+  const path = font.getPath(text, resolvedX, y, size);
+  return `<path d="${path.toPathData(2)}" fill="${fill}"/>`;
+};
+
+const fetchImageBuffer = async (url: string): Promise<Buffer | null> => {
   try {
     const response = await fetch(url, {
       headers: { Accept: "image/*" },
@@ -60,9 +100,7 @@ const fetchImageDataUrl = async (url: string): Promise<string | null> => {
     if (!response.ok) {
       return null;
     }
-    const buffer = Buffer.from(await response.arrayBuffer());
-    const mime = response.headers.get("content-type") ?? "image/png";
-    return `data:${mime};base64,${buffer.toString("base64")}`;
+    return Buffer.from(await response.arrayBuffer());
   } catch {
     return null;
   }
@@ -72,73 +110,123 @@ const buildSvg = (
   input: MatchOgCardInput,
   homeLogo: string | null,
   awayLogo: string | null,
-  fontBase64: string | null,
 ): string => {
-  const fontFace = fontBase64
-    ? `@font-face{font-family:'Press Start 2P';src:url(data:font/woff2;base64,${fontBase64}) format('woff2');font-weight:400;font-style:normal;}`
-    : "";
-  const fontFamily = fontBase64
-    ? "'Press Start 2P', monospace"
-    : "'Courier New', monospace";
+  const font = loadPixelFont();
 
-  const homeName = escapeXml(truncateName(input.homeName));
-  const awayName = escapeXml(truncateName(input.awayName));
+  const homeName = truncateName(input.homeName);
+  const awayName = truncateName(input.awayName);
   const score = `${input.homeScore} - ${input.awayScore}`;
-  const status = escapeXml(
-    input.isLive ? "LIVE" : input.statusLabel || "—",
-  );
-  const round = escapeXml(input.roundLabel);
-  const competition = escapeXml(
-    input.competitionLabel ?? "FIFA World Cup",
-  );
-  const brand = escapeXml(siteConfig.name);
-  const statusColor = input.isLive ? "#FF6B9D" : "#6B5F7A";
+  const timeLabel = input.timeLabel.trim().toUpperCase();
+  const statusLabel = input.statusLabel.trim() || "—";
+  const brand = siteConfig.name.toLowerCase();
+
+  const homeFifa = input.homeFifaRank
+    ? `FIFA ${input.homeFifaRank}`
+    : "";
+  const awayFifa = input.awayFifaRank
+    ? `FIFA ${input.awayFifaRank}`
+    : "";
+
+  const timeColor = input.isLive ? COLORS.live : COLORS.score;
+  const logoY = 170;
+  const logoSize = 112;
+  const homeLogoX = 130;
+  const awayLogoX = 958;
+
+  const homeLogoCx = homeLogoX + logoSize / 2;
+  const awayLogoCx = awayLogoX + logoSize / 2;
+  const logoCy = logoY + logoSize / 2;
 
   const homeLogoMarkup = homeLogo
-    ? `<image href="${homeLogo}" x="130" y="220" width="112" height="112" preserveAspectRatio="xMidYMid meet"/>`
-    : `<rect x="130" y="220" width="112" height="112" fill="#C4BAA8" stroke="#2D1B4E" stroke-width="4"/>`;
+    ? `<image href="${homeLogo}" x="${homeLogoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" preserveAspectRatio="xMidYMid meet" clip-path="url(#home-logo-clip)"/>`
+    : `<circle cx="${homeLogoCx}" cy="${logoCy}" r="56" fill="${COLORS.logoFallback}" stroke="${COLORS.logoBorder}" stroke-width="4"/>`;
 
   const awayLogoMarkup = awayLogo
-    ? `<image href="${awayLogo}" x="958" y="220" width="112" height="112" preserveAspectRatio="xMidYMid meet"/>`
-    : `<rect x="958" y="220" width="112" height="112" fill="#C4BAA8" stroke="#2D1B4E" stroke-width="4"/>`;
+    ? `<image href="${awayLogo}" x="${awayLogoX}" y="${logoY}" width="${logoSize}" height="${logoSize}" preserveAspectRatio="xMidYMid meet" clip-path="url(#away-logo-clip)"/>`
+    : `<circle cx="${awayLogoCx}" cy="${logoCy}" r="56" fill="${COLORS.logoFallback}" stroke="${COLORS.logoBorder}" stroke-width="4"/>`;
+
+  const textPaths = [
+    timeLabel
+      ? textPath(font, timeLabel, 600, 248, 28, timeColor, "middle")
+      : "",
+    textPath(font, score, 600, 340, 56, COLORS.score, "middle"),
+    textPath(font, statusLabel, 600, 392, 16, COLORS.status, "middle"),
+    textPath(font, homeName, 186, 420, 20, COLORS.team, "middle"),
+    textPath(font, awayName, 1014, 420, 20, COLORS.team, "middle"),
+    homeFifa
+      ? textPath(font, homeFifa, 186, 452, 14, COLORS.fifa, "middle")
+      : "",
+    awayFifa
+      ? textPath(font, awayFifa, 1014, 452, 14, COLORS.fifa, "middle")
+      : "",
+    textPath(font, brand, 1128, 580, 14, COLORS.brand, "middle"),
+  ].join("\n  ");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="${OG_WIDTH}" height="${OG_HEIGHT}" viewBox="0 0 ${OG_WIDTH} ${OG_HEIGHT}">
   <defs>
-    <style>
-      ${fontFace}
-      .pixel { font-family: ${fontFamily}; }
-    </style>
+    <clipPath id="home-logo-clip">
+      <circle cx="${homeLogoCx}" cy="${logoCy}" r="56"/>
+    </clipPath>
+    <clipPath id="away-logo-clip">
+      <circle cx="${awayLogoCx}" cy="${logoCy}" r="56"/>
+    </clipPath>
   </defs>
-  <rect width="100%" height="100%" fill="#E8E0D0"/>
-  <rect x="24" y="24" width="1152" height="582" fill="#E8E0D0" stroke="#2D1B4E" stroke-width="8"/>
-  <rect x="48" y="48" width="1104" height="534" fill="#E8E0D0" stroke="#2D1B4E" stroke-width="4"/>
-
-  <text x="600" y="118" text-anchor="middle" class="pixel" fill="#6B5F7A" font-size="18">${competition}</text>
-  <text x="600" y="156" text-anchor="middle" class="pixel" fill="#2D1B4E" font-size="20">${round}</text>
-
+  <rect width="100%" height="100%" fill="${COLORS.background}"/>
   ${homeLogoMarkup}
   ${awayLogoMarkup}
-
-  <text x="186" y="392" text-anchor="middle" class="pixel" fill="#2D1B4E" font-size="22">${homeName}</text>
-  <text x="1014" y="392" text-anchor="middle" class="pixel" fill="#2D1B4E" font-size="22">${awayName}</text>
-
-  <text x="600" y="318" text-anchor="middle" class="pixel" fill="#2D1B4E" font-size="72">${escapeXml(score)}</text>
-  <text x="600" y="372" text-anchor="middle" class="pixel" fill="${statusColor}" font-size="22">${status}</text>
-
-  <text x="1128" y="552" text-anchor="end" class="pixel" fill="#3DD9EB" font-size="18">${brand}</text>
+  ${textPaths}
 </svg>`;
 };
+
+const bufferToDataUrl = (buffer: Buffer, mime: string): string =>
+  `data:${mime};base64,${buffer.toString("base64")}`;
 
 export const renderMatchOgImage = async (
   input: MatchOgCardInput,
 ): Promise<Buffer> => {
-  const [homeLogo, awayLogo] = await Promise.all([
-    fetchImageDataUrl(FOTMOB_TEAM_LOGO(input.homeTeamId)),
-    fetchImageDataUrl(FOTMOB_TEAM_LOGO(input.awayTeamId)),
+  const [homeLogoBuf, awayLogoBuf] = await Promise.all([
+    fetchImageBuffer(FOTMOB_TEAM_LOGO(input.homeTeamId)),
+    fetchImageBuffer(FOTMOB_TEAM_LOGO(input.awayTeamId)),
   ]);
 
-  const svg = buildSvg(input, homeLogo, awayLogo, loadPixelFontBase64());
+  const homeLogo = homeLogoBuf
+    ? bufferToDataUrl(homeLogoBuf, "image/png")
+    : null;
+  const awayLogo = awayLogoBuf
+    ? bufferToDataUrl(awayLogoBuf, "image/png")
+    : null;
+
+  const svg = buildSvg(input, homeLogo, awayLogo);
 
   return sharp(Buffer.from(svg)).png().resize(OG_WIDTH, OG_HEIGHT).toBuffer();
+};
+
+export const buildMatchOgTimeLabel = (input: {
+  isLive: boolean;
+  matchMinute: string;
+  statusShort: string;
+}): string => {
+  if (input.matchMinute) {
+    return input.matchMinute;
+  }
+  if (input.isLive) {
+    return "LIVE";
+  }
+  return input.statusShort;
+};
+
+export const buildMatchOgStatusLabel = (input: {
+  statusLong: string;
+  statusShort: string;
+  isLive: boolean;
+  isFinished: boolean;
+}): string => {
+  if (input.isLive) {
+    return input.statusLong || input.statusShort || "—";
+  }
+  if (input.isFinished) {
+    return input.statusLong || input.statusShort || "FT";
+  }
+  return input.statusLong || input.statusShort || "—";
 };

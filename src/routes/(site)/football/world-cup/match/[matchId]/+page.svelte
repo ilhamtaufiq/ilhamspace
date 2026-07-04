@@ -126,6 +126,7 @@
   {locale}
   matchId={match.matchId}
   matchFacts={data.matchFacts}
+  playerStatsById={match.playerStatsById}
   isLive={match.isLive}
 />
 

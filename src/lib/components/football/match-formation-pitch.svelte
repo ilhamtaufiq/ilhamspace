@@ -1,10 +1,13 @@
 <script lang="ts">
   import MatchPlayByPlayPopup from "$lib/components/football/match-playbyplay-popup.svelte";
+  import MatchPlayerDetailPopup from "$lib/components/football/match-player-detail-popup.svelte";
   import { FOTMOB_TEAM_LOGO } from "$lib/fotmob/constants";
   import type {
     MatchLineupPlayer,
     MatchLineupView,
     MatchPlayByPlayView,
+    MatchPlayerDetail,
+    MatchPlayerStatsIndex,
   } from "$lib/fotmob/types";
   import { cn } from "$lib/utils";
 
@@ -14,6 +17,7 @@
     locale: "id" | "en";
     matchId?: number;
     matchFacts?: MatchPlayByPlayView;
+    playerStatsById?: MatchPlayerStatsIndex;
     isLive?: boolean;
   };
 
@@ -23,8 +27,11 @@
     locale,
     matchId = 0,
     matchFacts = { entries: [], hasData: false },
+    playerStatsById = {},
     isLive = false,
   }: Props = $props();
+
+  let selectedPlayer = $state<MatchPlayerDetail | null>(null);
 
   const hasLineup = $derived(
     (home?.starters.length ?? 0) > 0 || (away?.starters.length ?? 0) > 0,
@@ -42,16 +49,36 @@
     }
     return "bg-muted text-foreground";
   };
+
+  const openPlayer = (player: MatchLineupPlayer, lineup: MatchLineupView): void => {
+    const detail = playerStatsById[player.id];
+    selectedPlayer = detail ?? {
+      id: player.id,
+      name: player.name,
+      teamId: lineup.teamId,
+      teamName: lineup.teamName,
+      shirtNumber: player.shirtNumber,
+      groups: [],
+      hasStats: false,
+    };
+  };
+
+  const closePlayer = (): void => {
+    selectedPlayer = null;
+  };
 </script>
 
 {#snippet playerNode(
   player: MatchLineupPlayer,
+  lineup: MatchLineupView,
   teamColor: string | undefined,
 )}
-  <div
-    class="absolute z-10 flex w-[3.25rem] -translate-x-1/2 -translate-y-1/2 flex-col items-center sm:w-[3.75rem]"
+  <button
+    type="button"
+    class="absolute z-10 flex w-[3.25rem] -translate-x-1/2 -translate-y-1/2 cursor-pointer flex-col items-center border-0 bg-transparent p-0 transition-transform hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ring)] sm:w-[3.75rem]"
     style="left: {player.pitchX}%; top: {player.pitchY}%"
-    title={player.name}
+    aria-label={player.name}
+    onclick={() => openPlayer(player, lineup)}
   >
     <div
       class="pixel-border flex size-8 flex-col items-center justify-center bg-card shadow-sm sm:size-9"
@@ -76,7 +103,7 @@
         {player.rating.toFixed(1)}
       </span>
     {/if}
-  </div>
+  </button>
 {/snippet}
 
 {#if hasLineup}
@@ -145,12 +172,12 @@
 
       {#if home}
         {#each home.starters as player (player.id)}
-          {@render playerNode(player, home.teamColor)}
+          {@render playerNode(player, home, home.teamColor)}
         {/each}
       {/if}
       {#if away}
         {#each away.starters as player (player.id)}
-          {@render playerNode(player, away.teamColor)}
+          {@render playerNode(player, away, away.teamColor)}
         {/each}
       {/if}
 
@@ -158,5 +185,15 @@
         <MatchPlayByPlayPopup {matchId} playByPlay={matchFacts} {isLive} />
       {/if}
     </div>
+
+    <p class="font-pixel text-muted-foreground mt-3 text-[7px] uppercase">
+      {locale === "id"
+        ? "Ketuk pemain untuk melihat statistik"
+        : "Tap a player to view stats"}
+    </p>
   </section>
+{/if}
+
+{#if selectedPlayer}
+  <MatchPlayerDetailPopup player={selectedPlayer} onClose={closePlayer} />
 {/if}

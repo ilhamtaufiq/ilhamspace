@@ -78,6 +78,10 @@
     Math.max(18, Math.min(tickerItems.length * 6, 60)),
   );
 
+  /** Dual-copy marquee only when multiple items; one message looked duplicated. */
+  const tickerCopies = $derived(tickerItems.length > 1 ? [0, 1] : [0]);
+  const tickerAnimated = $derived(tickerItems.length > 1);
+
   const togglePanel = (): void => {
     panelOpen = !panelOpen;
     if (panelOpen) {
@@ -140,10 +144,15 @@
     <div class="ticker-mask relative h-5 overflow-hidden">
       {#if tickerItems.length > 0}
         <div
-          class="ticker-track flex w-max items-center gap-8 whitespace-nowrap"
-          style="--ticker-duration: {tickerDuration}s"
+          class={cn(
+            "ticker-track flex w-max items-center gap-8 whitespace-nowrap",
+            tickerAnimated && "ticker-track-animated",
+          )}
+          style={tickerAnimated
+            ? `--ticker-duration: ${tickerDuration}s`
+            : undefined}
         >
-          {#each [0, 1] as copy (copy)}
+          {#each tickerCopies as copy (copy)}
             {#each tickerItems as item (`${copy}-${item.id}`)}
               <span class="font-retro inline-flex items-center gap-2 text-xs">
                 <span class="font-pixel text-[var(--ring)] text-[8px]">
@@ -329,11 +338,11 @@
 {/if}
 
 <style>
-  .ticker-track {
+  .ticker-track-animated {
     animation: chat-ticker-scroll var(--ticker-duration, 24s) linear infinite;
   }
 
-  .ticker-track:hover {
+  .ticker-track-animated:hover {
     animation-play-state: paused;
   }
 
@@ -368,7 +377,7 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .ticker-track {
+    .ticker-track-animated {
       animation: none;
       flex-wrap: wrap;
       white-space: normal;

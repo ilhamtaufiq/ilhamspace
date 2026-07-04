@@ -73,6 +73,7 @@
     "drizzle-orm": "^0.45.2",
     "fast-xml-parser": "^5.9.3",
     "lowlight": "^3.3.0",
+    "opentype.js": "^2.0.0",
     "sharp": "^0.35.3",
     "tailwind-merge": "^3.6.0",
     "ws": "^8.21.0",

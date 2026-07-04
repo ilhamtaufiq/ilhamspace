@@ -1,3 +1,4 @@
+import { mapPlayerStatsIndex } from "$lib/fotmob/match-player-stats";
 import { mapMatchStats } from "$lib/fotmob/match-stats";
 import { getRoundLabel } from "$lib/fotmob/world-cup";
 import type {
@@ -521,6 +522,7 @@ export const mapMatchDetail = (
   } | undefined;
   const h2h = mapH2H(content?.h2h as Record<string, unknown>);
   const topPlayers = mapPlayerRatings(playerStats);
+  const playerStatsById = mapPlayerStatsIndex(playerStats);
   const momentum = mapMomentum(content?.momentum as Record<string, unknown>);
   const shots = mapShots(content?.shotmap as Record<string, unknown>);
 
@@ -564,6 +566,7 @@ export const mapMatchDetail = (
       teamColors?.lightMode?.away,
     ),
     topPlayers,
+    playerStatsById,
     h2h,
     momentum,
     shots,
