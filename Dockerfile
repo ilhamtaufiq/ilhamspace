@@ -28,8 +28,8 @@ COPY server.ts ./
 COPY server ./server
 COPY drizzle.config.ts ./
 COPY drizzle ./drizzle
-COPY scripts/docker-entrypoint.sh scripts/ensure-admin.ts scripts/seed-admin.ts ./scripts/
-COPY src/lib/db ./src/lib/db
+COPY scripts/docker-entrypoint.sh scripts/db.ts scripts/ensure-admin.ts scripts/seed-admin.ts ./scripts/
+COPY src/lib/db/schema.ts ./src/lib/db/schema.ts
 
 RUN chmod +x scripts/docker-entrypoint.sh
 
