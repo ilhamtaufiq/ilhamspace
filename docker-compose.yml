@@ -8,7 +8,7 @@ services:
     expose:
       - 3000
     volumes:
-      - ilhamspace_data:/app/persist
+      - ./data:/app/persist
     environment:
       - NODE_ENV=production
       - PORT=3000
@@ -25,9 +25,6 @@ services:
     networks:
       - coolify
     restart: always
-
-volumes:
-  ilhamspace_data:
 
 networks:
   coolify:
