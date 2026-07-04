@@ -83,10 +83,10 @@ This project uses a **dual license**:
 
 | Scope | License | File |
 | --- | --- | --- |
-| **Site content** (posts, pages, images, and other creative work published on the site) | [Creative Commons Attribution 4.0 (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) | [LICENSE](LICENSE) |
-| **Source code** (application code, scripts, and tooling in this repository) | [MIT License](https://opensource.org/licenses/MIT) | [LICENSE-CODE](LICENSE-CODE) |
+| **Site content** (posts, pages, images, and other creative work published on the site) | [Creative Commons Attribution 4.0 (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) | [LICENSE.CC-BY-4.0](LICENSE.CC-BY-4.0) |
+| **Source code** (application code, scripts, and tooling in this repository) | [MIT License](https://opensource.org/licenses/MIT) | [LICENSE.MIT](LICENSE.MIT) |
 
 - **CC BY 4.0** — you may share and adapt site content with attribution.
 - **MIT** — you may use, modify, and distribute the code with the copyright and permission notice preserved.
 
-The MIT license in [LICENSE-CODE](LICENSE-CODE) includes the original copyright notice from [jarv.is](https://github.com/jakejarvis/jarv.is).
+The MIT license in [LICENSE.MIT](LICENSE.MIT) includes the original copyright notice from [jarv.is](https://github.com/jakejarvis/jarv.is).
