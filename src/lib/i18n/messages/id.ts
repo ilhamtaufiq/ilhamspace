@@ -2,6 +2,7 @@ const id = {
   "nav.home": "Beranda",
   "nav.notes": "Catatan",
   "nav.projects": "Proyek",
+  "nav.worldCup": "Piala Dunia",
   "nav.dashboard": "Dasbor",
   "lang.switchLabel": "Pilih bahasa",
   "lang.id": "ID",
@@ -90,6 +91,16 @@ const id = {
   "seo.projectsDescription": "Koleksi proyek dan portofolio ilhamspace.",
   "seo.loginTitle": "Masuk",
   "seo.loginDescription": "Masuk ke dasbor admin ilhamspace.",
+  "seo.worldCupTitle": "Piala Dunia",
+  "seo.worldCupDescription":
+    "Bracket fase knockout Piala Dunia FIFA — analisa dan jadwal pertandingan.",
+  "football.worldCupTitle": "piala dunia",
+  "football.worldCupIntro":
+    "Bracket fase knockout Piala Dunia FIFA. Data dari FotMob.",
+  "football.errorTitle": "Data tidak tersedia",
+  "football.errorHint":
+    "Pastikan FotMob API berjalan (FOTMOB_API_URL) lalu muat ulang halaman.",
+  "football.emptyTitle": "Belum ada data knockout",
 } as const;
 
 export default id;

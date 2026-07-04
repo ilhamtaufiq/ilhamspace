@@ -4,6 +4,7 @@ const en: Record<keyof typeof id, string> = {
   "nav.home": "Home",
   "nav.notes": "Notes",
   "nav.projects": "Projects",
+  "nav.worldCup": "World Cup",
   "nav.dashboard": "Dashboard",
   "lang.switchLabel": "Choose language",
   "lang.id": "ID",
@@ -91,6 +92,16 @@ const en: Record<keyof typeof id, string> = {
   "seo.projectsDescription": "Project and portfolio collection from ilhamspace.",
   "seo.loginTitle": "Login",
   "seo.loginDescription": "Sign in to the ilhamspace admin dashboard.",
+  "seo.worldCupTitle": "World Cup",
+  "seo.worldCupDescription":
+    "FIFA World Cup knockout bracket — match analysis and schedule.",
+  "football.worldCupTitle": "world cup",
+  "football.worldCupIntro":
+    "FIFA World Cup knockout bracket. Data from FotMob.",
+  "football.errorTitle": "Data unavailable",
+  "football.errorHint":
+    "Ensure the FotMob API is running (FOTMOB_API_URL), then reload.",
+  "football.emptyTitle": "No knockout data yet",
 };
 
 export default en;

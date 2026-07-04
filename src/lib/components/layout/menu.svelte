@@ -16,6 +16,7 @@
     { text: t("nav.home"), href: "/" },
     { text: t("nav.notes"), href: "/notes" },
     { text: t("nav.projects"), href: "/projects" },
+    { text: t("nav.worldCup"), href: "/football/world-cup" },
     ...(isAdmin ? [{ text: t("nav.dashboard"), href: "/admin" }] : []),
   ]);
 
