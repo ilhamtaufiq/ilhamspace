@@ -36,6 +36,15 @@
 
 <section class="space-y-6">
   <div class="space-y-4">
+    <img
+      src="/logo.jpg"
+      alt={siteConfig.name}
+      width={128}
+      height={128}
+      decoding="async"
+      class="pixel-border image-rendering-pixelated size-28 object-cover sm:size-32"
+    />
+
     <h1 class="type-page-title text-base sm:text-base">
       {t("home.welcome", { name: siteConfig.name })}
     </h1>
