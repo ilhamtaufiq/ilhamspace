@@ -25,6 +25,36 @@ export const buildCanonicalUrl = (path: string): string => {
   return `${siteUrl}${normalizedPath}`;
 };
 
+const isAbsoluteUrl = (url: string): boolean => /^https?:\/\//i.test(url);
+
+export const buildAbsoluteUrl = (pathOrUrl: string): string => {
+  const value = pathOrUrl.trim();
+  if (!value) {
+    return buildDefaultOgImageUrl();
+  }
+
+  if (isAbsoluteUrl(value)) {
+    return value;
+  }
+
+  const siteUrl = getSiteUrl();
+  const normalizedPath = value.startsWith("/") ? value : `/${value}`;
+  return `${siteUrl}${normalizedPath}`;
+};
+
+export const buildDefaultOgImageUrl = (): string =>
+  buildAbsoluteUrl(siteConfig.defaultOgImagePath);
+
+export const resolveOgImageUrl = (image?: string | null): string =>
+  image?.trim() ? buildAbsoluteUrl(image) : buildDefaultOgImageUrl();
+
+const IMG_SRC_RE = /<img\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i;
+
+export const extractFirstImageFromHtml = (html: string): string | null => {
+  const match = IMG_SRC_RE.exec(html);
+  return match?.[1]?.trim() ?? null;
+};
+
 export const buildPageTitle = (
   title: string,
   siteName: string = siteConfig.name,
@@ -38,6 +68,7 @@ export const buildWebsiteJsonLd = (): JsonLd => {
     name: siteConfig.name,
     url: siteUrl,
     description: siteConfig.description,
+    image: buildDefaultOgImageUrl(),
     inLanguage: ["id", "en"],
   };
 };
@@ -48,9 +79,11 @@ export const buildArticleJsonLd = (input: {
   path: string;
   publishedAt: string;
   modifiedAt?: string;
+  image?: string | null;
 }): JsonLd => {
   const siteUrl = getSiteUrl();
   const url = buildCanonicalUrl(input.path);
+  const imageUrl = resolveOgImageUrl(input.image);
 
   return {
     "@context": "https://schema.org",
@@ -59,6 +92,7 @@ export const buildArticleJsonLd = (input: {
     description: input.description,
     url,
     mainEntityOfPage: url,
+    image: [imageUrl],
     datePublished: input.publishedAt,
     dateModified: input.modifiedAt ?? input.publishedAt,
     author: {

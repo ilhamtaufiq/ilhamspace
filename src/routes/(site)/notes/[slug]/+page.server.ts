@@ -15,7 +15,11 @@ import { broadcastVoteUpdate } from "$lib/server/broadcast-vote";
 import { getPostBySlug } from "$lib/db/posts";
 import { translate } from "$lib/i18n";
 import { commentSchema, voteSchema } from "$lib/schemas/comment";
-import { stripHtml, truncateDescription } from "$lib/seo/meta";
+import {
+  extractFirstImageFromHtml,
+  stripHtml,
+  truncateDescription,
+} from "$lib/seo/meta";
 
 import type { Actions, PageServerLoad } from "./$types";
 
@@ -42,6 +46,7 @@ export const load: PageServerLoad = async ({
   const seoDescription =
     post.description?.trim() ||
     truncateDescription(stripHtml(post.contentHtml));
+  const seoImage = extractFirstImageFromHtml(post.contentHtml);
 
   const commentSort = parseCommentSort(url.searchParams.get("sort"));
   const voterKey = getVoterKey(getClientAddress());
@@ -55,6 +60,7 @@ export const load: PageServerLoad = async ({
     post,
     canEdit: locals.user?.isAdmin ?? false,
     seoDescription,
+    seoImage,
     seoPublishedAt: publishedAt.toISOString(),
     seoModifiedAt: modifiedAt.toISOString(),
     comments,

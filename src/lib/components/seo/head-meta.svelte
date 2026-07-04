@@ -1,5 +1,10 @@
 <script lang="ts">
-  import { buildCanonicalUrl, serializeJsonLd, type JsonLd } from "$lib/seo/meta";
+  import {
+    buildCanonicalUrl,
+    resolveOgImageUrl,
+    serializeJsonLd,
+    type JsonLd,
+  } from "$lib/seo/meta";
   import { siteConfig } from "$lib/config/site";
 
   type Props = {
@@ -9,6 +14,8 @@
     type?: "website" | "article";
     publishedAt?: string;
     modifiedAt?: string;
+    image?: string | null;
+    imageAlt?: string;
     noindex?: boolean;
     jsonLd?: JsonLd | JsonLd[];
   };
@@ -20,11 +27,15 @@
     type = "website",
     publishedAt,
     modifiedAt,
+    image,
+    imageAlt,
     noindex = false,
     jsonLd,
   }: Props = $props();
 
   const canonicalUrl = $derived(buildCanonicalUrl(path));
+  const ogImageUrl = $derived(resolveOgImageUrl(image));
+  const ogImageAlt = $derived(imageAlt?.trim() || title);
   const robots = $derived(noindex ? "noindex, nofollow" : "index, follow");
 </script>
 
@@ -41,10 +52,14 @@
   <meta property="og:type" content={type} />
   <meta property="og:locale" content="id_ID" />
   <meta property="og:locale:alternate" content="en_US" />
+  <meta property="og:image" content={ogImageUrl} />
+  <meta property="og:image:alt" content={ogImageAlt} />
 
-  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />
   <meta name="twitter:description" content={description} />
+  <meta name="twitter:image" content={ogImageUrl} />
+  <meta name="twitter:image:alt" content={ogImageAlt} />
 
   {#if type === "article" && publishedAt}
     <meta property="article:published_time" content={publishedAt} />

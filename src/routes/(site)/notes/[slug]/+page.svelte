@@ -56,6 +56,8 @@
   description={data.seoDescription}
   path="/notes/{data.post.slug}"
   type="article"
+  image={data.seoImage}
+  imageAlt={data.post.title}
   publishedAt={data.seoPublishedAt}
   modifiedAt={data.seoModifiedAt}
   jsonLd={buildArticleJsonLd({
@@ -64,6 +66,7 @@
     path: `/notes/${data.post.slug}`,
     publishedAt: data.seoPublishedAt,
     modifiedAt: data.seoModifiedAt,
+    image: data.seoImage,
   })}
 />
 
