@@ -1,6 +1,8 @@
 #!/bin/sh
 set -e
 
+echo "[entrypoint] config=spm-data-bind-v20260704 db=/app/data/ilhamspace.db"
+
 if [ "${NODE_ENV:-}" = "production" ]; then
   export DATABASE_PATH=/app/data/ilhamspace.db
 elif [ -z "${DATABASE_PATH:-}" ]; then
@@ -28,13 +30,9 @@ if [ -n "${mount_root}" ]; then
   case "${mount_root}" in
     *docker/volumes/*/_data)
       volume_name="$(echo "${mount_root}" | sed 's|.*/docker/volumes/\([^/]*\)/_data|\1|')"
-      echo "[entrypoint] FATAL: ${data_dir} uses Coolify hash volume '${volume_name}'."
-      echo "[entrypoint] Hapus SEMUA Persistent Storage di Coolify UI untuk app ini."
-      echo "[entrypoint] Compose sudah bind ke /data/coolify/applications/.../data"
+      echo "[entrypoint] FATAL: hash volume '${volume_name}' on ${data_dir}."
+      echo "[entrypoint] Coolify -> Persistent Storage -> HAPUS SEMUA (ini timpa ./data bind)."
       exit 1
-      ;;
-    *coolify/applications*)
-      echo "[entrypoint] Storage: Coolify data dir -> ${data_dir}"
       ;;
     *)
       echo "[entrypoint] Storage: ${mount_root} -> ${data_dir}"

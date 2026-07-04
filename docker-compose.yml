@@ -1,5 +1,4 @@
-# Bind ke folder persisten Coolify (sama seperti spm-am ./data, tapi path eksplisit).
-# Hapus semua "Persistent Storage" di Coolify UI — itu bikin volume hash baru tiap deploy.
+# Persis seperti spm-am. Hapus SEMUA Persistent Storage di Coolify UI.
 services:
   app:
     build:
@@ -10,9 +9,7 @@ services:
     expose:
       - 3000
     volumes:
-      - type: bind
-        source: /data/coolify/applications/${COOLIFY_RESOURCE_UUID}/data
-        target: /app/data
+      - ./data:/app/data
     environment:
       - NODE_ENV=production
       - PORT=3000
