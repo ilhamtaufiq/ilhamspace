@@ -4,7 +4,9 @@ import { getPublishedProjects } from "$lib/server/projects";
 
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ locals }) => {
+export const load: PageServerLoad = async ({ locals, depends }) => {
+  depends("app:posts");
+
   const [posts, projects] = await Promise.all([
     getPublishedPosts(),
     getPublishedProjects(),

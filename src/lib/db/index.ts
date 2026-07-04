@@ -8,5 +8,7 @@ const client = createClient({
   url: getDatabaseUrl(),
 });
 
+void client.execute("PRAGMA foreign_keys = ON");
+
 export const db = drizzle(client, { schema });
 export * from "$lib/db/schema";

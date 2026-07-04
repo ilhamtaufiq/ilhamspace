@@ -36,6 +36,13 @@
       "when": 1783157593284,
       "tag": "0004_grey_loners",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1783159940863,
+      "tag": "0005_dizzy_hobgoblin",
+      "breakpoints": true
     }
   ]
 }

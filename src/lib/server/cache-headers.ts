@@ -13,5 +13,11 @@ export const applyCacheHeaders = (
 
   if (IMMUTABLE_STATIC_RE.test(pathname) || IMMUTABLE_EXT_RE.test(pathname)) {
     headers.set("Cache-Control", "public, max-age=31536000, immutable");
+    return;
+  }
+
+  const contentType = headers.get("content-type") ?? "";
+  if (contentType.includes("text/html")) {
+    headers.set("Cache-Control", "no-store");
   }
 };

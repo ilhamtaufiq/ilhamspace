@@ -1,4 +1,4 @@
-import { error, redirect } from "@sveltejs/kit";
+import { error, fail, redirect } from "@sveltejs/kit";
 
 import { formatTagsFromJson } from "$lib/schemas/post";
 import { handleUpdatePost } from "$lib/server/post-actions";
@@ -36,7 +36,11 @@ export const actions: Actions = {
     return { success: true };
   },
   delete: async ({ params }) => {
-    await deletePost(params.id);
+    const deleted = await deletePost(params.id);
+    if (!deleted) {
+      return fail(500, { deleteError: "Could not delete post." });
+    }
+
     throw redirect(303, "/admin/posts");
   },
 };

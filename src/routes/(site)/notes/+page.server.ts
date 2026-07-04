@@ -11,7 +11,9 @@ import {
 
 import type { PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async ({ locals, url }) => {
+export const load: PageServerLoad = async ({ locals, url, depends }) => {
+  depends("app:posts");
+
   const posts = await getPublishedPosts();
   const allItems = posts.map((post) => formatPostListItem(post, locals.locale));
   const allYears = getYearsFromItems(allItems);

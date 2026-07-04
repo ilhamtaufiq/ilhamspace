@@ -1,11 +1,11 @@
 import { randomUUID } from "node:crypto";
 
-import { and, desc, eq, ne } from "drizzle-orm";
+import { and, desc, eq, inArray, ne } from "drizzle-orm";
 
 import { renderPostHtml } from "$lib/editor/render";
 import { parseTags } from "$lib/schemas/post";
 import { db } from "$lib/db/index";
-import { type Post, posts } from "$lib/db/schema";
+import { commentVotes, comments, type Post, posts } from "$lib/db/schema";
 import { slugify } from "$lib/editor/slug";
 
 export type PostInput = {
@@ -181,8 +181,25 @@ export const updatePost = async (
 
 export const deletePost = async (id: string): Promise<boolean> => {
   try {
-    await db.delete(posts).where(eq(posts.id, id));
-    return true;
+    const postComments = await db
+      .select({ id: comments.id })
+      .from(comments)
+      .where(eq(comments.postId, id));
+
+    const commentIds = postComments.map((row) => row.id);
+
+    if (commentIds.length > 0) {
+      await db
+        .delete(commentVotes)
+        .where(inArray(commentVotes.commentId, commentIds));
+      await db.delete(comments).where(eq(comments.postId, id));
+    }
+
+    const deleted = await db.delete(posts).where(eq(posts.id, id)).returning({
+      id: posts.id,
+    });
+
+    return deleted.length > 0;
   } catch (error) {
     console.error("[server/posts] delete error:", error);
     return false;

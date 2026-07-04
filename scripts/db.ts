@@ -12,8 +12,10 @@ const getDatabaseUrl = (): string => {
   return `file:${path}`;
 };
 
-export const scriptDb = drizzle(createClient({ url: getDatabaseUrl() }), {
-  schema,
-});
+const client = createClient({ url: getDatabaseUrl() });
+
+void client.execute("PRAGMA foreign_keys = ON");
+
+export const scriptDb = drizzle(client, { schema });
 
 export { schema };

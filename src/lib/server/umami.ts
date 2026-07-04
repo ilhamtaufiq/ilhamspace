@@ -3,6 +3,12 @@ import {
   isUmamiStatsConfigured,
 } from "$lib/db/umami-settings";
 
+import {
+  clearUmamiAuthCache,
+  getUmamiAuthToken,
+  resolveUmamiApiBase,
+} from "$lib/server/umami-auth";
+
 const CACHE_TTL_MS = 5 * 60 * 1000;
 
 type CacheEntry = {
@@ -64,7 +70,36 @@ const parsePageviews = (payload: UmamiStatsResponse): number => {
   return 0;
 };
 
-export const fetchUmamiPageViews = async (rawPath: string): Promise<number | null> => {
+const fetchStatsForPath = async (
+  apiBase: string,
+  websiteId: string,
+  token: string,
+  path: string,
+): Promise<number | null> => {
+  const statsUrl = new URL(`/api/websites/${websiteId}/stats`, apiBase);
+  statsUrl.searchParams.set("startAt", "0");
+  statsUrl.searchParams.set("endAt", String(Date.now()));
+  statsUrl.searchParams.set("url", path);
+
+  const response = await fetch(statsUrl, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      Accept: "application/json",
+    },
+  });
+
+  if (!response.ok) {
+    console.error("[umami] stats error:", response.status, path);
+    return null;
+  }
+
+  const payload = (await response.json()) as UmamiStatsResponse;
+  return parsePageviews(payload);
+};
+
+export const fetchUmamiPageViews = async (
+  rawPath: string,
+): Promise<number | null> => {
   const path = normalizeUmamiPath(rawPath);
   const cached = getCachedViews(path);
   if (cached !== null) {
@@ -76,27 +111,28 @@ export const fetchUmamiPageViews = async (rawPath: string): Promise<number | nul
     return null;
   }
 
-  const apiBase = settings!.apiUrl!.replace(/\/$/, "");
-  const statsUrl = new URL(`/api/websites/${settings!.websiteId}/stats`, apiBase);
-  statsUrl.searchParams.set("startAt", "0");
-  statsUrl.searchParams.set("endAt", String(Date.now()));
-  statsUrl.searchParams.set("url", path);
+  const token = await getUmamiAuthToken(settings!);
+  if (!token) {
+    return null;
+  }
+
+  const apiBase = resolveUmamiApiBase(settings!);
+  if (!apiBase || !settings!.websiteId) {
+    return null;
+  }
 
   try {
-    const response = await fetch(statsUrl, {
-      headers: {
-        Authorization: `Bearer ${settings!.apiToken}`,
-        Accept: "application/json",
-      },
-    });
+    const views = await fetchStatsForPath(
+      apiBase,
+      settings!.websiteId,
+      token,
+      path,
+    );
 
-    if (!response.ok) {
-      console.error("[umami] stats error:", response.status, path);
+    if (views === null) {
       return null;
     }
 
-    const payload = (await response.json()) as UmamiStatsResponse;
-    const views = parsePageviews(payload);
     setCachedViews(path, views);
     return views;
   } catch (error) {
@@ -118,18 +154,20 @@ export const fetchUmamiPageViewsBatch = async (
 
 export const clearUmamiViewCache = (): void => {
   viewCache.clear();
+  clearUmamiAuthCache();
 };
 
 export const testUmamiConnection = async (): Promise<
-  { ok: true } | { ok: false; message: string }
+  { ok: true; views: number } | { ok: false; message: string }
 > => {
   const views = await fetchUmamiPageViews("/");
   if (views === null) {
     return {
       ok: false,
-      message: "Could not reach Umami. Check API URL, token, and website ID.",
+      message:
+        "Could not fetch stats. Add API token or Umami login (username + password).",
     };
   }
 
-  return { ok: true };
+  return { ok: true, views };
 };

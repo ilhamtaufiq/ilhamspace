@@ -1,4 +1,4 @@
-import { fail } from "@sveltejs/kit";
+import { fail, redirect } from "@sveltejs/kit";
 
 import { deletePost, getAllPosts } from "$lib/server/posts";
 import {
@@ -27,8 +27,12 @@ export const actions: Actions = {
       return { success: false };
     }
 
-    await deletePost(id);
-    return { success: true };
+    const deleted = await deletePost(id);
+    if (!deleted) {
+      return fail(500, { deleteError: "Could not delete post." });
+    }
+
+    throw redirect(303, "/admin/posts");
   },
 
   importWordPress: async ({ request, locals }) => {

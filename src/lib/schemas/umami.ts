@@ -6,7 +6,7 @@ const optionalUrl = z
   .url("Enter a valid URL.")
   .or(z.literal(""));
 
-const optionalToken = z.string().trim();
+const optionalSecret = z.string().trim();
 
 export const umamiSettingsFormSchema = z
   .object({
@@ -17,7 +17,9 @@ export const umamiSettingsFormSchema = z
     scriptUrl: optionalUrl,
     websiteId: z.string().trim(),
     apiUrl: optionalUrl,
-    apiToken: optionalToken,
+    apiToken: optionalSecret,
+    apiUsername: optionalSecret,
+    apiPassword: optionalSecret,
   })
   .superRefine((data, ctx) => {
     if (!data.enabled) {

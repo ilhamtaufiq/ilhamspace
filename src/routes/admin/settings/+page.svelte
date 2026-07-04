@@ -17,10 +17,9 @@
   <div>
     <h2 class="font-pixel text-[10px] uppercase">Umami analytics</h2>
     <p class="font-retro text-muted-foreground mt-2 text-sm">
-      Works with self-hosted Umami (v2). Add a website for
-      <code class="font-mono text-xs">is.cianjur.space</code>, then paste the
-      values below. Script URL defaults to
-      <code class="font-mono text-xs">API URL/script.js</code> if left empty.
+      Tracking uses the script below. <strong>View counts</strong> need API
+      access — use an API token or your self-hosted Umami login (no API key
+      menu required).
     </p>
   </div>
 
@@ -77,7 +76,7 @@
     </div>
 
     <div class="space-y-1.5">
-      <Label for="umami-api-token">API token</Label>
+      <Label for="umami-api-token">API token (optional)</Label>
       <input
         id="umami-api-token"
         name="apiToken"
@@ -85,9 +84,40 @@
         autocomplete="new-password"
         placeholder={data.settings.hasApiToken
           ? "Saved — leave blank to keep current token"
-          : "Paste Umami API token"}
+          : "Or use Umami login below"}
         class="font-retro pixel-border bg-background block w-full px-3 py-2 text-sm"
       />
+    </div>
+
+    <div class="space-y-1.5">
+      <Label for="umami-api-username">Umami login (self-hosted)</Label>
+      <input
+        id="umami-api-username"
+        name="apiUsername"
+        type="text"
+        autocomplete="username"
+        value={data.settings.apiUsername}
+        placeholder="admin"
+        class="font-retro pixel-border bg-background block w-full px-3 py-2 text-sm"
+      />
+    </div>
+
+    <div class="space-y-1.5">
+      <Label for="umami-api-password">Umami password</Label>
+      <input
+        id="umami-api-password"
+        name="apiPassword"
+        type="password"
+        autocomplete="current-password"
+        placeholder={data.settings.hasApiPassword
+          ? "Saved — leave blank to keep current password"
+          : "Password for your Umami dashboard"}
+        class="font-retro pixel-border bg-background block w-full px-3 py-2 text-sm"
+      />
+      <p class="font-retro text-muted-foreground text-xs">
+        Used server-side to read pageview stats. API URL is inferred from Script
+        URL if empty.
+      </p>
     </div>
 
     <div class="flex flex-wrap gap-2">
@@ -105,9 +135,15 @@
     </p>
   {/if}
 
+  {#if form?.saveWarning}
+    <p class="font-pixel text-[8px] uppercase text-muted-foreground" role="status">
+      {form.saveWarning}
+    </p>
+  {/if}
+
   {#if form?.testSuccess}
     <p class="font-pixel text-[8px] uppercase text-[var(--ring)]" role="status">
-      Umami API connection OK.
+      Umami API OK — homepage views: {form.testViews ?? 0}
     </p>
   {/if}
 

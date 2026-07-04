@@ -2,6 +2,10 @@ import { eq } from "drizzle-orm";
 
 import { db } from "$lib/db/index";
 import { type UmamiSettings, umamiSettings } from "$lib/db/schema";
+import {
+  hasUmamiApiCredentials,
+  resolveUmamiApiBase,
+} from "$lib/server/umami-auth";
 
 const SETTINGS_ID = "default";
 
@@ -17,6 +21,8 @@ export type UmamiSettingsInput = {
   websiteId: string | null;
   apiUrl: string | null;
   apiToken: string | null;
+  apiUsername: string | null;
+  apiPassword: string | null;
 };
 
 const toPublicConfig = (row: UmamiSettings | null): UmamiPublicConfig => ({
@@ -46,7 +52,12 @@ export const getUmamiPublicConfig = async (): Promise<UmamiPublicConfig> => {
 };
 
 export const isUmamiStatsConfigured = (row: UmamiSettings | null): boolean =>
-  Boolean(row?.enabled && row.apiUrl && row.apiToken && row.websiteId);
+  Boolean(
+    row?.enabled &&
+      row.websiteId &&
+      resolveUmamiApiBase(row) &&
+      hasUmamiApiCredentials(row),
+  );
 
 export const saveUmamiSettings = async (
   input: UmamiSettingsInput,
@@ -62,6 +73,8 @@ export const saveUmamiSettings = async (
       websiteId: input.websiteId,
       apiUrl: input.apiUrl,
       apiToken: input.apiToken,
+      apiUsername: input.apiUsername,
+      apiPassword: input.apiPassword,
       updatedAt: now,
     };
 

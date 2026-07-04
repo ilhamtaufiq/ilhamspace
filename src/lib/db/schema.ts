@@ -94,6 +94,8 @@ export const umamiSettings = sqliteTable("umami_settings", {
   websiteId: text("website_id"),
   apiUrl: text("api_url"),
   apiToken: text("api_token"),
+  apiUsername: text("api_username"),
+  apiPassword: text("api_password"),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" })
     .notNull()
     .default(sql`(unixepoch() * 1000)`),

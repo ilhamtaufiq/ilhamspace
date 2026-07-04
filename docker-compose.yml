@@ -1,3 +1,4 @@
+# Coolify: use "Docker Compose" build pack OR add Persistent Storage mount /data.
 services:
   ilhamspace:
     build: .
