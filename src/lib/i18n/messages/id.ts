@@ -75,10 +75,11 @@ const id = {
   "comments.errorVoteRateLimit": "Terlalu banyak vote. Coba lagi nanti.",
   "comments.errorVoteInvalid": "Vote tidak valid.",
   "comments.errorVoteFailed": "Gagal menyimpan vote. Coba lagi.",
-  "stats.viewsSoon": "Penghitung tayangan — segera hadir",
+  "stats.views": "Tayangan halaman",
+  "stats.viewsUnavailable": "Tayangan tidak tersedia",
+  "stats.comments": "Komentar",
   "stats.commentsSoon": "Komentar — segera hadir",
   "stats.commentCounterSoon": "Penghitung komentar — segera hadir",
-  "stats.viewCounterSoon": "Penghitung tayangan — segera hadir",
   "seo.siteDescription":
     "ilhamspace — situs pribadi untuk catatan, proyek, dan ide.",
   "seo.homeTitle": "Beranda",

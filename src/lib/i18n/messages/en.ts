@@ -76,10 +76,11 @@ const en: Record<keyof typeof id, string> = {
   "comments.errorVoteRateLimit": "Too many votes. Try again later.",
   "comments.errorVoteInvalid": "Invalid vote.",
   "comments.errorVoteFailed": "Failed to save vote. Try again.",
-  "stats.viewsSoon": "Views — coming soon",
+  "stats.views": "Page views",
+  "stats.viewsUnavailable": "View counts unavailable",
+  "stats.comments": "Comments",
   "stats.commentsSoon": "Comments — coming soon",
   "stats.commentCounterSoon": "Comment counter — coming soon",
-  "stats.viewCounterSoon": "View counter — coming soon",
   "seo.siteDescription":
     "ilhamspace — a personal site for notes, projects, and ideas.",
   "seo.homeTitle": "Home",

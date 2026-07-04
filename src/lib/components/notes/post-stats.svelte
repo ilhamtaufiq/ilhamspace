@@ -4,10 +4,8 @@
 
   import Badge from "$lib/components/ui/badge.svelte";
   import { getLocaleContext } from "$lib/i18n/context";
-  import {
-    formatStatCount,
-    getPlaceholderPostStats,
-  } from "$lib/stats/placeholder";
+  import { formatStatCount } from "$lib/stats/format";
+  import { fetchViewCount } from "$lib/stats/views";
 
   type Props = {
     slug: string;
@@ -18,15 +16,25 @@
   const { t } = getLocaleContext();
 
   let loaded = $state(false);
-  let views = $state(0);
+  let views = $state<number | null>(null);
+  let viewsUnavailable = $state(false);
 
   onMount(() => {
-    const timer = window.setTimeout(() => {
-      views = getPlaceholderPostStats(slug).views;
-      loaded = true;
-    }, 320);
+    let cancelled = false;
 
-    return () => window.clearTimeout(timer);
+    fetchViewCount(slug).then((count) => {
+      if (cancelled) {
+        return;
+      }
+
+      viewsUnavailable = count === null;
+      views = count ?? 0;
+      loaded = true;
+    });
+
+    return () => {
+      cancelled = true;
+    };
   });
 </script>
 
@@ -40,12 +48,15 @@
     aria-hidden="true"
   ></span>
 {:else}
-  <Badge title={t("stats.viewsSoon")} class="opacity-80">
+  <Badge
+    title={viewsUnavailable ? t("stats.viewsUnavailable") : t("stats.views")}
+    class="opacity-80"
+  >
     <IconEye class="size-3.5 shrink-0 opacity-65" aria-hidden="true" />
-    {formatStatCount(views)}
+    {formatStatCount(views ?? 0)}
   </Badge>
 
-  <Badge href="/{slug}#comments" title={t("stats.commentsSoon")} class="ml-1 opacity-80">
+  <Badge href="/{slug}#comments" title={t("stats.comments")} class="ml-1 opacity-80">
     <IconMessages class="size-3.5 shrink-0 opacity-65" aria-hidden="true" />
     {formatStatCount(commentCount)}
   </Badge>

@@ -87,6 +87,18 @@ export const commentVotes = sqliteTable(
   ],
 );
 
+export const umamiSettings = sqliteTable("umami_settings", {
+  id: text("id").primaryKey().default("default"),
+  enabled: integer("enabled", { mode: "boolean" }).notNull().default(false),
+  scriptUrl: text("script_url"),
+  websiteId: text("website_id"),
+  apiUrl: text("api_url"),
+  apiToken: text("api_token"),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+});
+
 export const projects = sqliteTable("projects", {
   id: text("id").primaryKey(),
   title: text("title").notNull(),
@@ -114,4 +126,5 @@ export type Post = typeof posts.$inferSelect;
 export type Comment = typeof comments.$inferSelect;
 export type CommentVote = typeof commentVotes.$inferSelect;
 export type Page = typeof pages.$inferSelect;
+export type UmamiSettings = typeof umamiSettings.$inferSelect;
 export type Project = typeof projects.$inferSelect;

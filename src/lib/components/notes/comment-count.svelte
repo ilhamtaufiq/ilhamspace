@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { formatStatCount } from "$lib/stats/placeholder";
+  import { formatStatCount } from "$lib/stats/format";
 
   type Props = {
     count: number;

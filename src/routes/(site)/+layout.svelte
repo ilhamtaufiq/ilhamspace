@@ -3,6 +3,7 @@
 
   import Footer from "$lib/components/layout/footer.svelte";
   import Header from "$lib/components/layout/header.svelte";
+  import UmamiScript from "$lib/components/seo/umami-script.svelte";
   import { siteConfig } from "$lib/config/site";
   import { setLocaleContext } from "$lib/i18n/context";
 
@@ -26,6 +27,10 @@
     href="/feed.xml"
   />
 </svelte:head>
+
+{#if data.umami.enabled && data.umami.scriptUrl && data.umami.websiteId}
+  <UmamiScript scriptUrl={data.umami.scriptUrl} websiteId={data.umami.websiteId} />
+{/if}
 
 <Header isAdmin={data.user?.isAdmin ?? false} />
 <main class="page-content w-full">

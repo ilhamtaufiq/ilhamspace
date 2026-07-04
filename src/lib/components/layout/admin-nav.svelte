@@ -9,6 +9,7 @@
     { text: "Posts", href: "/admin/posts" },
     { text: "New post", href: "/admin/posts/new" },
     { text: "Comments", href: "/admin/comments" },
+    { text: "Settings", href: "/admin/settings" },
     { text: "Projects", href: "/admin/projects" },
     { text: "New project", href: "/admin/projects/new" },
   ] as const;
