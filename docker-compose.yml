@@ -1,26 +1,34 @@
-# Coolify: Build Pack = Docker Compose.
-# IMPORTANT: In Coolify UI, remove ALL "Persistent Storage" entries for /data.
-# This file already defines ilhamspace-data:/data — extra Coolify storage breaks deploy.
+# Coolify: same pattern as SPM (bind ./data — persisted on server across redeploys).
+# Do NOT add extra "Persistent Storage" in Coolify UI for /data.
 services:
-  ilhamspace:
-    build: .
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
+  app:
+    build:
+      context: .
+      args:
+        - COOLIFY_URL=${COOLIFY_URL:-}
+        - COOLIFY_FQDN=${COOLIFY_FQDN:-}
+    expose:
+      - 3000
     volumes:
-      - ilhamspace-data:/data
+      - ./data:/data
     environment:
-      NODE_ENV: production
-      PORT: 3000
-      HOST: 0.0.0.0
-      ORIGIN: ${ORIGIN:-http://localhost:3000}
-      DATABASE_PATH: /data/ilhamspace.db
-      SESSION_SECRET: ${SESSION_SECRET:?Set SESSION_SECRET}
-      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
-      ADMIN_NAME: ${ADMIN_NAME:-Admin}
-      ADMIN_PASSWORD_HASH: ${ADMIN_PASSWORD_HASH:-}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
-      BODY_SIZE_LIMIT: ${BODY_SIZE_LIMIT:-15M}
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+      - ORIGIN=${ORIGIN:-https://is.cianjur.space}
+      - DATABASE_PATH=/data/ilhamspace.db
+      - SESSION_SECRET=${SESSION_SECRET:?Set SESSION_SECRET}
+      - ADMIN_EMAIL=${ADMIN_EMAIL:-}
+      - ADMIN_NAME=${ADMIN_NAME:-Admin}
+      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH:-}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD:-}
+      - BODY_SIZE_LIMIT=${BODY_SIZE_LIMIT:-15M}
+    labels:
+      - "coolify.port=3000"
+    networks:
+      - coolify
+    restart: always
 
-volumes:
-  ilhamspace-data:
+networks:
+  coolify:
+    external: true

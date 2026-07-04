@@ -28,6 +28,7 @@ export const GET: RequestHandler = (): Response => {
     db_exists: dbExists,
     volume_mounted: volume.mounted,
     mount_root: volume.mount_root,
+    storage_type: volume.storage_type,
     storage_ok: volume.storage_ok,
     deploy_count: getDeployCount(dataDir),
   });

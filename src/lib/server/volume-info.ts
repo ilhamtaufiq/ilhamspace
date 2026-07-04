@@ -4,6 +4,7 @@ export type VolumeInfo = {
   mounted: boolean;
   mount_root: string | null;
   storage_ok: boolean;
+  storage_type: "docker_volume" | "bind" | "missing";
 };
 
 export const getVolumeInfo = (dataDir: string): VolumeInfo => {
@@ -13,18 +14,46 @@ export const getVolumeInfo = (dataDir: string): VolumeInfo => {
       .find((row) => row.split(/\s+/)[4] === dataDir);
 
     if (!line) {
-      return { mounted: false, mount_root: null, storage_ok: false };
+      return {
+        mounted: false,
+        mount_root: null,
+        storage_ok: false,
+        storage_type: "missing",
+      };
     }
 
     const mountRoot = line.split(/\s+/)[3] ?? null;
-    const storageOk = mountRoot?.includes("docker/volumes") === true;
+
+    if (mountRoot?.includes("docker/volumes") === true) {
+      return {
+        mounted: true,
+        mount_root: mountRoot,
+        storage_ok: true,
+        storage_type: "docker_volume",
+      };
+    }
+
+    if (mountRoot === "/") {
+      return {
+        mounted: true,
+        mount_root: mountRoot,
+        storage_ok: false,
+        storage_type: "bind",
+      };
+    }
 
     return {
       mounted: true,
       mount_root: mountRoot,
-      storage_ok: storageOk,
+      storage_ok: true,
+      storage_type: "bind",
     };
   } catch {
-    return { mounted: false, mount_root: null, storage_ok: false };
+    return {
+      mounted: false,
+      mount_root: null,
+      storage_ok: false,
+      storage_type: "missing",
+    };
   }
 };

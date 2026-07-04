@@ -30,16 +30,17 @@ if [ -n "${mount_root}" ]; then
     *docker/volumes*)
       echo "[entrypoint] Docker volume: ${mount_root} -> ${data_dir}"
       ;;
-    *)
-      echo "[entrypoint] FATAL: ${data_dir} is a host bind (${mount_root}), not a Docker named volume."
-      echo "[entrypoint] Coolify -> Persistent Storage -> DELETE every /data entry (including /dev/sda2)."
-      echo "[entrypoint] docker-compose.yml already mounts ilhamspace-data:/data — do not add extra storage."
+    /)
+      echo "[entrypoint] FATAL: ${data_dir} is mounted from disk root — use ./data:/data in compose."
       exit 1
+      ;;
+    *)
+      echo "[entrypoint] Data bind (Coolify ./data): ${mount_root} -> ${data_dir}"
       ;;
   esac
 else
   echo "[entrypoint] FATAL: ${data_dir} is not mounted."
-  echo "[entrypoint] Use Docker Compose build pack; volume ilhamspace-data:/data is required."
+  echo "[entrypoint] docker-compose.yml must include: ./data:/data"
   if [ "${NODE_ENV:-}" = "production" ]; then
     exit 1
   fi
