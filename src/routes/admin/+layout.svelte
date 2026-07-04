@@ -10,7 +10,7 @@
 <svelte:head>
   <title>Admin · {siteConfig.name}</title>
   <meta name="robots" content="noindex, nofollow" />
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/logo.jpg" type="image/jpeg" />
 </svelte:head>
 
 <div class="admin-shell bg-muted/20 -mx-4 space-y-8 px-4 py-4">

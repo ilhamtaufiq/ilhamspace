@@ -19,7 +19,7 @@
 </script>
 
 <svelte:head>
-  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/logo.jpg" type="image/jpeg" />
   <link
     rel="alternate"
     type="application/rss+xml"
