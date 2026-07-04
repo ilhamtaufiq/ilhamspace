@@ -1,6 +1,5 @@
-# Host ./data sama seperti spm-am. Container pakai /app/persist (bukan /app/data)
-# supaya tidak bentrok dengan Coolify Persistent Storage yang sering di-mount ke
-# /app/data atau /persist dan mengosongkan DB tiap redeploy.
+# Named volume = data survives container rebuilds (bind ./data sering tidak
+# terpasang / ditimpa Coolify). Hapus SEMUA Persistent Storage di dashboard.
 services:
   app:
     build:
@@ -11,13 +10,12 @@ services:
     expose:
       - 3000
     volumes:
-      - ./data:/app/persist
+      - ilhamspace-data:/app/persist
     environment:
       - NODE_ENV=production
       - PORT=3000
       - HOST=0.0.0.0
       - ORIGIN=${ORIGIN:-https://is.cianjur.space}
-      - DATABASE_PATH=/app/persist/ilhamspace.db
       - SESSION_SECRET=${SESSION_SECRET:?Set SESSION_SECRET}
       - ADMIN_EMAIL=${ADMIN_EMAIL:-}
       - ADMIN_NAME=${ADMIN_NAME:-Admin}
@@ -29,6 +27,10 @@ services:
     networks:
       - coolify
     restart: always
+
+volumes:
+  ilhamspace-data:
+    name: ilhamspace-diwpciiw0oaieuvly0q8yb1d
 
 networks:
   coolify:
