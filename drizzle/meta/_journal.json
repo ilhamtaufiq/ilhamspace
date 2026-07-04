@@ -43,6 +43,13 @@
       "when": 1783159940863,
       "tag": "0005_dizzy_hobgoblin",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1783182971465,
+      "tag": "0006_romantic_blur",
+      "breakpoints": true
     }
   ]
 }

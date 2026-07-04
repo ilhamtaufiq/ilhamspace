@@ -122,6 +122,16 @@ export const projects = sqliteTable("projects", {
     .default(sql`(unixepoch() * 1000)`),
 });
 
+export const matchChatMessages = sqliteTable("match_chat_messages", {
+  id: text("id").primaryKey(),
+  matchId: integer("match_id").notNull(),
+  authorName: text("author_name").notNull(),
+  body: text("body").notNull(),
+  createdAt: integer("created_at", { mode: "timestamp_ms" })
+    .notNull()
+    .default(sql`(unixepoch() * 1000)`),
+});
+
 export type User = typeof users.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
 export type Post = typeof posts.$inferSelect;
@@ -130,3 +140,4 @@ export type CommentVote = typeof commentVotes.$inferSelect;
 export type Page = typeof pages.$inferSelect;
 export type UmamiSettings = typeof umamiSettings.$inferSelect;
 export type Project = typeof projects.$inferSelect;
+export type MatchChatMessage = typeof matchChatMessages.$inferSelect;

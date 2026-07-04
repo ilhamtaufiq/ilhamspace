@@ -5,12 +5,12 @@ import type {
   PlayoffMatchup,
 } from "$lib/fotmob/types";
 
-const ROUND_LABELS: Record<string, { id: string; en: string }> = {
-  "1/16": { id: "Babak 32", en: "Round of 32" },
-  "1/8": { id: "Babak 16", en: "Round of 16" },
-  "1/4": { id: "Perempat Final", en: "Quarter-finals" },
-  "1/2": { id: "Semi Final", en: "Semi-finals" },
-  final: { id: "Final", en: "Final" },
+const ROUND_LABELS: Record<string, { id: string; en: string; short: string }> = {
+  "1/16": { id: "Babak 32", en: "Round of 32", short: "B32" },
+  "1/8": { id: "Babak 16", en: "Round of 16", short: "B16" },
+  "1/4": { id: "Perempat Final", en: "Quarter-finals", short: "B8" },
+  "1/2": { id: "Semi Final", en: "Semi-finals", short: "SF" },
+  final: { id: "Final", en: "Final", short: "F" },
 };
 
 export const getRoundLabel = (stage: string, locale: "id" | "en"): string => {
@@ -20,6 +20,13 @@ export const getRoundLabel = (stage: string, locale: "id" | "en"): string => {
   }
   return stage;
 };
+
+export const getRoundShortLabel = (stage: string): string => {
+  return ROUND_LABELS[stage]?.short ?? stage;
+};
+
+/** Slot height (px) for bracket column alignment */
+export const BRACKET_SLOT_HEIGHT = 76;
 
 const formatScore = (matchup: PlayoffMatchup): string => {
   const match = matchup.matches?.[0];

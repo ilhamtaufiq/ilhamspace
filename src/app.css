@@ -98,6 +98,8 @@
   --code-foreground: #1a0f2e;
   --selection: #3dd9eb;
   --selection-foreground: #2d1b4e;
+  --team-home: var(--ring);
+  --team-away: var(--primary);
 }
 
 .dark {
@@ -125,6 +127,8 @@
   --code-foreground: #39ff14;
   --selection: #39ff14;
   --selection-foreground: #0d0d0d;
+  --team-home: var(--ring);
+  --team-away: var(--primary);
 }
 
 @layer base {

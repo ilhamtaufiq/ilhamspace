@@ -3,6 +3,7 @@ import process from "node:process";
 
 import { handler } from "./build/handler.js";
 import { attachCommentVoteHub } from "./server/comment-vote-hub";
+import { attachMatchChatHub } from "./server/match-chat-hub";
 
 const port = Number(process.env.PORT ?? 3000);
 const host = process.env.HOST ?? "0.0.0.0";
@@ -21,6 +22,7 @@ const server = http.createServer((request, response) => {
 });
 
 attachCommentVoteHub(server);
+attachMatchChatHub(server);
 
 server.listen(port, host, () => {
   console.log(`Listening on http://${host}:${port}`);

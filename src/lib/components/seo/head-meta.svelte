@@ -16,6 +16,8 @@
     modifiedAt?: string;
     image?: string | null;
     imageAlt?: string;
+    imageWidth?: number;
+    imageHeight?: number;
     noindex?: boolean;
     jsonLd?: JsonLd | JsonLd[];
   };
@@ -29,6 +31,8 @@
     modifiedAt,
     image,
     imageAlt,
+    imageWidth,
+    imageHeight,
     noindex = false,
     jsonLd,
   }: Props = $props();
@@ -54,6 +58,12 @@
   <meta property="og:locale:alternate" content="en_US" />
   <meta property="og:image" content={ogImageUrl} />
   <meta property="og:image:alt" content={ogImageAlt} />
+  {#if imageWidth}
+    <meta property="og:image:width" content={String(imageWidth)} />
+  {/if}
+  {#if imageHeight}
+    <meta property="og:image:height" content={String(imageHeight)} />
+  {/if}
 
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content={title} />

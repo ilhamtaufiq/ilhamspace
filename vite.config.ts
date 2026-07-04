@@ -6,18 +6,21 @@ import type { Plugin, ViteDevServer } from "vite";
 import { defineConfig } from "vite";
 
 import { attachCommentVoteHub } from "./server/comment-vote-hub";
+import { attachMatchChatHub } from "./server/match-chat-hub";
 
-const commentVoteWebsocket = (): Plugin => ({
-  name: "comment-vote-websocket",
+const realtimeWebsocket = (): Plugin => ({
+  name: "realtime-websocket",
   configureServer(server: ViteDevServer) {
     server.httpServer?.once("listening", () => {
       if (server.httpServer) {
-        attachCommentVoteHub(server.httpServer as Server);
+        const httpServer = server.httpServer as Server;
+        attachCommentVoteHub(httpServer);
+        attachMatchChatHub(httpServer);
       }
     });
   },
 });
 
 export default defineConfig({
-  plugins: [tailwindcss(), sveltekit(), commentVoteWebsocket()],
+  plugins: [tailwindcss(), sveltekit(), realtimeWebsocket()],
 });

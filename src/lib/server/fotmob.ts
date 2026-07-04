@@ -33,3 +33,39 @@ export const getLeaguePlayoff = async (
 ): Promise<LeaguePlayoffData> => {
   return fetchFotmob<LeaguePlayoffData>(`/leagues/${leagueId}/playoff`);
 };
+
+export const getMatch = async (matchId: number): Promise<Record<string, unknown>> => {
+  return fetchFotmob<Record<string, unknown>>(`/matches/${matchId}`);
+};
+
+export const getMatchDetails = async (
+  matchId: number,
+): Promise<Record<string, unknown>> => {
+  return fetchFotmob<Record<string, unknown>>(`/matches/${matchId}/details`);
+};
+
+export const getMatchPlayerStats = async (
+  matchId: number,
+): Promise<Record<string, unknown>> => {
+  return fetchFotmob<Record<string, unknown>>(
+    `/matches/${matchId}/player-stats`,
+  );
+};
+
+export const fetchFotmobOptional = async <T>(
+  path: string,
+): Promise<T | null> => {
+  try {
+    return await fetchFotmob<T>(path);
+  } catch {
+    return null;
+  }
+};
+
+export const getMatchComments = async (
+  matchId: number,
+): Promise<Record<string, unknown> | null> => {
+  return fetchFotmobOptional<Record<string, unknown>>(
+    `/matches/${matchId}/comments`,
+  );
+};

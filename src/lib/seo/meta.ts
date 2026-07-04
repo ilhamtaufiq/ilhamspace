@@ -48,6 +48,9 @@ export const buildDefaultOgImageUrl = (): string =>
 export const resolveOgImageUrl = (image?: string | null): string =>
   image?.trim() ? buildAbsoluteUrl(image) : buildDefaultOgImageUrl();
 
+export const buildMatchOgImagePath = (matchId: number): string =>
+  `/api/og/football/match/${matchId}`;
+
 const IMG_SRC_RE = /<img\b[^>]*\bsrc=["']([^"']+)["'][^>]*>/i;
 
 export const extractFirstImageFromHtml = (html: string): string | null => {
