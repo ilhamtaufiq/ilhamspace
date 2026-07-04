@@ -38,11 +38,12 @@ const resolvePasswordHash = (): string | null => {
 };
 
 export const ensureAdminFromEnv = async (): Promise<
-  "created" | "updated" | "skipped"
+  "created" | "updated" | "exists" | "skipped"
 > => {
   const email = process.env.ADMIN_EMAIL?.trim().toLowerCase();
   const passwordHash = resolvePasswordHash();
   const name = process.env.ADMIN_NAME?.trim() || "Admin";
+  const mode = process.env.ENSURE_ADMIN_MODE?.trim() || "create-only";
 
   if (!email || !passwordHash) {
     return "skipped";
@@ -55,6 +56,10 @@ export const ensureAdminFromEnv = async (): Promise<
     .limit(1);
 
   if (existing.length > 0) {
+    if (mode !== "force" && mode !== "update") {
+      return "exists";
+    }
+
     await scriptDb
       .update(users)
       .set({ passwordHash, name, isAdmin: true })
@@ -85,7 +90,13 @@ if (isCli) {
     process.exit(0);
   }
 
-  console.log(
-    `[ensure-admin] Admin user ${result} for ${process.env.ADMIN_EMAIL}`,
-  );
+  if (result === "exists") {
+    console.log(
+      `[ensure-admin] Admin user already exists for ${process.env.ADMIN_EMAIL} — unchanged`,
+    );
+  } else {
+    console.log(
+      `[ensure-admin] Admin user ${result} for ${process.env.ADMIN_EMAIL}`,
+    );
+  }
 }

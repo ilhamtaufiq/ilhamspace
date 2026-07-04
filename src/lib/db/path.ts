@@ -2,7 +2,11 @@ import { mkdirSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 
 export const getDatabasePath = (): string => {
-  const raw = process.env.DATABASE_PATH ?? "./data/ilhamspace.db";
+  const raw =
+    process.env.DATABASE_PATH ??
+    (process.env.NODE_ENV === "production"
+      ? "/data/ilhamspace.db"
+      : "./data/ilhamspace.db");
   return resolve(raw);
 };
 

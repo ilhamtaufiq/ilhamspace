@@ -1,4 +1,6 @@
-# Coolify: use "Docker Compose" build pack OR add Persistent Storage mount /data.
+# Coolify: use "Docker Compose" build pack (recommended) OR add Persistent Storage:
+#   Destination Path: /data  |  Type: Docker volume (NOT host bind like /dev/sda2)
+# Redeploys skip DB changes unless new migrations exist (RUN_MIGRATIONS=auto).
 services:
   ilhamspace:
     build: .
