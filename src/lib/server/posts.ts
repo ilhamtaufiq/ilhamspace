@@ -1,7 +1,12 @@
 import { randomUUID } from "node:crypto";
 
-import { and, desc, eq, inArray, ne } from "drizzle-orm";
+import { and, count, desc, eq, inArray, ne } from "drizzle-orm";
 
+import {
+  ADMIN_LIST_PER_PAGE,
+  buildAdminPaginationMeta,
+  clampAdminPage,
+} from "$lib/admin/pagination";
 import { renderPostHtml } from "$lib/editor/render";
 import { parseTags } from "$lib/schemas/post";
 import { db } from "$lib/db/index";
@@ -33,6 +38,82 @@ export const getAllPosts = async (): Promise<Post[]> => {
   } catch (error) {
     console.error("[server/posts] list error:", error);
     return [];
+  }
+};
+
+export const getPostStatusCounts = async (): Promise<{
+  published: number;
+  draft: number;
+  total: number;
+}> => {
+  try {
+    const rows = await db
+      .select({
+        status: posts.status,
+        total: count(),
+      })
+      .from(posts)
+      .groupBy(posts.status);
+
+    let published = 0;
+    let draft = 0;
+
+    for (const row of rows) {
+      if (row.status === "published") {
+        published = row.total;
+      } else if (row.status === "draft") {
+        draft = row.total;
+      }
+    }
+
+    return {
+      published,
+      draft,
+      total: published + draft,
+    };
+  } catch (error) {
+    console.error("[server/posts] status count error:", error);
+    return { published: 0, draft: 0, total: 0 };
+  }
+};
+
+export const getAdminPostsPage = async (
+  requestedPage: number,
+  perPage: number = ADMIN_LIST_PER_PAGE,
+): Promise<{
+  posts: Post[];
+  page: number;
+  totalPages: number;
+  totalItems: number;
+  perPage: number;
+}> => {
+  try {
+    const countRows = await db.select({ total: count() }).from(posts);
+    const totalItems = countRows[0]?.total ?? 0;
+    const meta = buildAdminPaginationMeta(totalItems, requestedPage, perPage);
+    const offset = (meta.page - 1) * perPage;
+
+    const rows = await db
+      .select()
+      .from(posts)
+      .orderBy(desc(posts.updatedAt))
+      .limit(perPage)
+      .offset(offset);
+
+    return {
+      posts: rows,
+      ...meta,
+    };
+  } catch (error) {
+    console.error("[server/posts] admin page error:", error);
+    const page = clampAdminPage(requestedPage, 1);
+    return {
+      posts: [],
+      page,
+      totalPages: 1,
+      totalItems: 0,
+      perPage,
+    };
   }
 };
 

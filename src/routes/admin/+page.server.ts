@@ -6,23 +6,30 @@ import {
   getTotalCommentCount,
 } from "$lib/db/comments";
 import { getAllPosts } from "$lib/server/posts";
+import { getAllProjects } from "$lib/server/projects";
 
 import type { Actions, PageServerLoad } from "./$types";
 
 export const load: PageServerLoad = async () => {
-  const [totalComments, recentComments, posts] = await Promise.all([
+  const [totalComments, recentComments, posts, projects] = await Promise.all([
     getTotalCommentCount(),
     getAdminComments({ limit: 8 }),
     getAllPosts(),
+    getAllProjects(),
   ]);
 
   const publishedPosts = posts.filter((post) => post.status === "published");
+  const publishedProjects = projects.filter(
+    (project) => project.status === "published",
+  );
 
   return {
     totalComments,
     recentComments,
     publishedPostCount: publishedPosts.length,
     draftPostCount: posts.length - publishedPosts.length,
+    projectCount: projects.length,
+    publishedProjectCount: publishedProjects.length,
   };
 };
 

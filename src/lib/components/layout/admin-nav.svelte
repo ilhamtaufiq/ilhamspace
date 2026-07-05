@@ -4,13 +4,16 @@
   import Button from "$lib/components/ui/button.svelte";
   import { cn } from "$lib/utils";
 
-  const navItems = [
+  const primaryItems = [
     { text: "Dashboard", href: "/admin" },
     { text: "Posts", href: "/admin/posts" },
-    { text: "New post", href: "/admin/posts/new" },
     { text: "Comments", href: "/admin/comments" },
-    { text: "Settings", href: "/admin/settings" },
     { text: "Projects", href: "/admin/projects" },
+    { text: "Settings", href: "/admin/settings" },
+  ] as const;
+
+  const createItems = [
+    { text: "New post", href: "/admin/posts/new" },
     { text: "New project", href: "/admin/projects/new" },
   ] as const;
 
@@ -22,29 +25,62 @@
   };
 </script>
 
-<nav
-  aria-label="Admin navigation"
-  class="pixel-border bg-card flex flex-wrap gap-1.5 p-2"
->
-  {#each navItems as item (item.href)}
-    {@const active = isActive(item.href, $page.url.pathname)}
-    <Button
-      href={item.href}
-      variant="ghost"
-      size="sm"
-      class={cn(active && "pixel-nav-active")}
-      aria-current={active ? "page" : undefined}
+<header class="admin-nav pixel-border bg-card overflow-hidden">
+  <div class="admin-nav__titlebar border-b-2 border-border px-4 py-2">
+    <p class="type-caption text-primary-foreground">Admin / CMS</p>
+  </div>
+
+  <nav
+    aria-label="Admin navigation"
+    class="flex flex-col gap-3 p-3 sm:p-4"
+  >
+    <div class="flex flex-wrap gap-1.5">
+      {#each primaryItems as item (item.href)}
+        {@const active = isActive(item.href, $page.url.pathname)}
+        <Button
+          href={item.href}
+          variant="ghost"
+          size="sm"
+          class={cn(active && "pixel-nav-active")}
+          aria-current={active ? "page" : undefined}
+        >
+          {item.text}
+        </Button>
+      {/each}
+    </div>
+
+    <div
+      class="flex flex-wrap items-center justify-between gap-2 border-t-2 border-border pt-3"
     >
-      {item.text}
-    </Button>
-  {/each}
+      <div class="flex flex-wrap gap-1.5">
+        {#each createItems as item (item.href)}
+          {@const active = isActive(item.href, $page.url.pathname)}
+          <Button
+            href={item.href}
+            variant="outline"
+            size="sm"
+            class={cn(active && "pixel-nav-active")}
+            aria-current={active ? "page" : undefined}
+          >
+            {item.text}
+          </Button>
+        {/each}
+      </div>
 
-  <span class="bg-border mx-1 hidden h-6 w-0.5 sm:inline" aria-hidden="true"
-  ></span>
+      <div class="flex flex-wrap gap-1.5">
+        <Button href="/" variant="outline" size="sm">View site</Button>
+        <form method="POST" action="/logout" class="inline-flex">
+          <Button type="submit" variant="destructive" size="sm">
+            Sign out
+          </Button>
+        </form>
+      </div>
+    </div>
+  </nav>
+</header>
 
-  <Button href="/" variant="outline" size="sm">View site</Button>
-
-  <form method="POST" action="/logout" class="inline-flex">
-    <Button type="submit" variant="destructive" size="sm">Sign out</Button>
-  </form>
-</nav>
+<style>
+  .admin-nav__titlebar {
+    background-color: var(--primary);
+  }
+</style>

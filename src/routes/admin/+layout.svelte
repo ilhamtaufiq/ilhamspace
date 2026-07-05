@@ -13,7 +13,7 @@
   <link rel="icon" href={siteConfig.logoPath} type="image/jpeg" />
 </svelte:head>
 
-<div class="admin-shell bg-muted/20 -mx-4 space-y-8 px-4 py-4">
+<div class="admin-shell admin-shell--pattern -mx-4 space-y-8 px-4 py-4">
   <AdminNav />
   <main class="w-full">
     {@render children()}

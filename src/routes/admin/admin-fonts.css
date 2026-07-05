@@ -1,1 +1,57 @@
 @import "@fontsource/jetbrains-mono/latin-400.css";
+
+.admin-shell--pattern {
+  background-color: color-mix(in srgb, var(--muted) 18%, var(--background));
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--border) 12%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 14px 14px;
+}
+
+.admin-page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.admin-hero__titlebar {
+  background-color: var(--primary);
+}
+
+.admin-hero__body {
+  background-image: radial-gradient(
+    color-mix(in srgb, var(--border) 18%, transparent) 1px,
+    transparent 1px
+  );
+  background-size: 12px 12px;
+}
+
+.admin-hero__stack {
+  min-width: 0;
+  width: 100%;
+}
+
+.admin-hero__intro {
+  max-width: none;
+}
+
+.admin-stat {
+  min-height: 3.5rem;
+}
+
+.admin-list-row {
+  transition: background-color 0.12s steps(2);
+}
+
+.admin-list-row:hover {
+  background: color-mix(in srgb, var(--muted) 30%, transparent);
+}
+
+.admin-status--published {
+  color: var(--ring);
+}
+
+.admin-status--draft {
+  color: var(--muted-foreground);
+}

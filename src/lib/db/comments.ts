@@ -376,8 +376,25 @@ export const getTotalCommentCount = async (): Promise<number> => {
   }
 };
 
+export const getAdminCommentCount = async (postId?: string): Promise<number> => {
+  try {
+    let query = db.select({ total: count() }).from(comments).$dynamic();
+
+    if (postId) {
+      query = query.where(eq(comments.postId, postId));
+    }
+
+    const rows = await query;
+    return rows[0]?.total ?? 0;
+  } catch (error) {
+    console.error("[db/comments] error counting admin comments:", error);
+    return 0;
+  }
+};
+
 export const getAdminComments = async (options?: {
   limit?: number;
+  offset?: number;
   postId?: string;
 }): Promise<AdminCommentListItem[]> => {
   try {
@@ -404,6 +421,10 @@ export const getAdminComments = async (options?: {
 
     if (options?.limit) {
       query = query.limit(options.limit);
+    }
+
+    if (options?.offset) {
+      query = query.offset(options.offset);
     }
 
     const rows = await query;

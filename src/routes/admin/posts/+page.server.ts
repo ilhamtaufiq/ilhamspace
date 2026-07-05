@@ -1,6 +1,11 @@
 import { fail, redirect } from "@sveltejs/kit";
 
-import { deletePost, getAllPosts } from "$lib/server/posts";
+import { parseAdminPageParam } from "$lib/admin/pagination";
+import {
+  deletePost,
+  getAdminPostsPage,
+  getPostStatusCounts,
+} from "$lib/server/posts";
 import {
   importWordPressExportXml,
   readWordPressExportFile,
@@ -9,9 +14,22 @@ import { parseWordPressExport } from "$lib/server/wordpress/parse-export";
 
 import type { Actions, PageServerLoad } from "./$types";
 
-export const load: PageServerLoad = async () => {
-  const posts = await getAllPosts();
-  return { posts };
+export const load: PageServerLoad = async ({ url }) => {
+  const requestedPage = parseAdminPageParam(url.searchParams);
+  const [result, statusCounts] = await Promise.all([
+    getAdminPostsPage(requestedPage),
+    getPostStatusCounts(),
+  ]);
+
+  return {
+    posts: result.posts,
+    page: result.page,
+    totalPages: result.totalPages,
+    totalItems: result.totalItems,
+    perPage: result.perPage,
+    publishedCount: statusCounts.published,
+    draftCount: statusCounts.draft,
+  };
 };
 
 export const actions: Actions = {
